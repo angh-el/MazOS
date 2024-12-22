@@ -1,0 +1,26 @@
+nasm -f bin boot.asm -o boot.bin -> converts file to binary
+
+
+qemu-system-x86_64 boot.bin -> runs qemu with the image of boot.bin
+
+
+od -t x1 -A n boot.bin -> see binary contents of the file
+
+
+gcc -ffreestanding -c basic.c -o basic.o -> compile into object file
+
+
+objdump -d basic.o -> get a view of an object file's contents
+
+
+ld -o basic.bin -Ttext 0x0 --oformat binary basic.o -> convert object file to binary
+
+
+ndisasm -b 32 basic.bin > basic.dis -> to check what machine code the compiler has actually generated
+
+
+cat boot.bin kernel.bin > os-image   -> concatinates boot binary code with the kernel binary code to produce one os-image
+
+https://www.cs.bham.ac.uk/~exr/lectures/opsys/10_11/lectures/os-dev.pdf
+
+
