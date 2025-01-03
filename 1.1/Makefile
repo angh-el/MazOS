@@ -1,9 +1,63 @@
-all: os.iso
-	gcc -m32 -fno-stack-protector -fno-builtin -c kernel.c -o kernel.o
-	nasm -f elf32 boot.s -o boot.o
-	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o
-	mv kernel os/boot/kernel
-	grub-mkrescue -o os.iso os/
+# all: os.iso
+# 	gcc -m32 -fno-stack-protector -fno-builtin -c kernel.c -o kernel.o
+# 	nasm -f elf32 boot.s -o boot.o
+# 	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o
+# 	mv kernel os/boot/kernel
+# 	grub-mkrescue -o os.iso os/
 
-run: os.iso
-	qemu-system-i386 os.iso
+# run: os.iso
+# 	qemu-system-i386 os.iso
+
+
+
+# Compiler and flags
+CC = gcc
+CFLAGS = -m32 -fno-stack-protector -fno-builtin
+AS = nasm
+LD = ld
+
+# Source and object files
+C_SOURCES = $(wildcard *.c)
+C_OBJECTS = $(C_SOURCES:.c=.o)
+
+# Assembly and linker scripts
+ASM_SOURCES = boot.s
+ASM_OBJECTS = $(ASM_SOURCES:.s=.o)
+
+LINKER_SCRIPT = linker.ld
+KERNEL_BIN = kernel
+
+# Output files
+ISO_DIR = os/boot
+ISO_FILE = os.iso
+
+all: $(ISO_FILE)
+
+# Compile C files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile assembly files
+%.o: %.s
+	$(AS) -f elf32 $< -o $@
+
+# Link kernel binary
+$(KERNEL_BIN): $(ASM_OBJECTS) $(C_OBJECTS)
+	$(LD) -m elf_i386 -T $(LINKER_SCRIPT) -o $@ $(ASM_OBJECTS) $(C_OBJECTS)
+
+# Move kernel to ISO directory
+$(ISO_FILE): $(KERNEL_BIN)
+	mkdir -p $(ISO_DIR)
+	mv $(KERNEL_BIN) $(ISO_DIR)/kernel
+	grub-mkrescue -o $@ os/
+
+# Run the kernel in QEMU
+run: $(ISO_FILE)
+	qemu-system-i386 $<
+
+# Clean up build files
+clean:
+	rm -f $(C_OBJECTS) $(ASM_OBJECTS) $(KERNEL_BIN) $(ISO_FILE)
+	rm -rf $(ISO_DIR)/kernel
+
+.PHONY: all run clean
