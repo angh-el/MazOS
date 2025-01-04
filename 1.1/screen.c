@@ -182,7 +182,7 @@ void print_char(char character , int col , int row , char attribute_byte ) {
     
     // Make scrolling adjustment , for when we reach the bottom
     // of the screen .
-    // offset = handle_scrolling(offset);
+    offset = handle_scrolling(offset);
 
     // Update the cursor position on the screen device .
     set_cursor(offset);

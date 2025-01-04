@@ -22,4 +22,6 @@ void kmain(void){
 
     init_gdt();
     print("Successfullly enabled the gdt ting\n");
+
+
 }
