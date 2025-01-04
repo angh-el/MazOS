@@ -1,5 +1,6 @@
 #include "screen.h"
 #include "gdt.h"
+#include "idt.h"
 
 void kmain(void);
 
@@ -22,6 +23,10 @@ void kmain(void){
 
     init_gdt();
     print("Successfullly enabled the gdt ting\n");
-
-
+    print("\n");
+    
+    init_idt();
+    print("Successfully enabled interrupts\n");
+    print("\nDividing by 0 ...\n");
+    print(2/0);
 }

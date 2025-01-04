@@ -79,14 +79,16 @@ kernel:
 	gcc -m32 -fno-stack-protector -fno-builtin -c screen.c -o screen.o
 	gcc -m32 -fno-stack-protector -fno-builtin -c gdt.c -o gdt.o
 	gcc -m32 -fno-stack-protector -fno-builtin -c util.c -o util.o
+	gcc -m32 -fno-stack-protector -fno-builtin -c idt.c -o idt.o
 
 boot:
 	nasm -f elf32 boot.s -o boot.o
 	nasm -f elf32 gdt_flush.s -o gdt_flush.o
+	nasm -f elf32 idt_flush.s -o idt_flush.o
 
 image:
 #	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o 
-	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o gdt.o gdt_flush.o util.o
+	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o gdt.o gdt_flush.o util.o idt.o idt_flush.o
 	mv kernel os/boot/kernel
 	grub-mkrescue -o os.iso os/
 	rm *.o
