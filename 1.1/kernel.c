@@ -2,6 +2,7 @@
 #include "gdt.h"
 #include "idt.h"
 #include "libs/printf.h"
+#include "drivers/keyboard.h"
 
 void kmain(void);
 
@@ -31,11 +32,12 @@ void kmain(void){
     // print("\nDividing by 0 ...\n");
     // print(2/0);
 
-    printf("hello\n\t\tyoooooo does this work test tes %d", 69);
+    // printf("hello\n\t\tyoooooo does this work test tes %d", 69);
     // printf("XXXX\n");
 
+    init_keyboard();
+    print("Successfully enabled keyboard driver");
 
-
-
-
+    set_cursor(get_screen_offset(1, 1));
+    printf("test test");
 }
