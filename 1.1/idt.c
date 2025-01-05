@@ -1,7 +1,38 @@
 #include "idt.h"
-#include "screen.h"
-#include "util.h"
+#include "drivers/screen.h"
+#include "libs/util.h"
 
+/////////////////////////////////////////////////////////////
+
+#define PIC1_PORT_A 0x20
+    #define PIC2_PORT_A 0xA0
+
+    /* The PIC interrupts have been remapped */
+    #define PIC1_START_INTERRUPT 0x20
+    #define PIC2_START_INTERRUPT 0x28
+    #define PIC2_END_INTERRUPT   PIC2_START_INTERRUPT + 7
+
+    #define PIC_ACK     0x20
+
+    /** pic_acknowledge:
+     *  Acknowledges an interrupt from either PIC 1 or PIC 2.
+     *
+     *  @param num The number of the interrupt
+     */
+    void pic_acknowledge(unsigned int interrupt)
+    {
+        if (interrupt < PIC1_START_INTERRUPT || interrupt > PIC2_END_INTERRUPT) {
+          return;
+        }
+
+        if (interrupt < PIC2_START_INTERRUPT) {
+          port_byte_out(PIC1_PORT_A, PIC_ACK);
+        } else {
+          port_byte_out(PIC2_PORT_A, PIC_ACK);
+        }
+    }
+
+//////////////////////////////////////////////////////////////
 struct idt_entry idt_entries[256];
 struct idt_ptr idt_ptr;
 
@@ -129,6 +160,7 @@ void handle_isr(struct interrupt_register* registers){
         print(interrupt_messages[registers->interrupt_num]);
         print("\nSystem is on a break styulll\n");
 
+        // pic_acknowledge(registers->interrupt_num);
         for(;;);
     }   
 }

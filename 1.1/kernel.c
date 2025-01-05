@@ -1,6 +1,7 @@
-#include "screen.h"
+#include "drivers/screen.h"
 #include "gdt.h"
 #include "idt.h"
+#include "libs/printf.h"
 
 void kmain(void);
 
@@ -27,6 +28,14 @@ void kmain(void){
     
     init_idt();
     print("Successfully enabled interrupts\n");
-    print("\nDividing by 0 ...\n");
-    print(2/0);
+    // print("\nDividing by 0 ...\n");
+    // print(2/0);
+
+    printf("hello\n\t\tyoooooo does this work test tes %d", 69);
+    // printf("XXXX\n");
+
+
+
+
+
 }

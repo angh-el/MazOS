@@ -1,7 +1,7 @@
 #pragma once
 
-#include "stdint.h"
-#include "util.h"
+#include "libs/stdint.h"
+#include "libs/util.h"
 
 struct gdt {
     uint16_t limit;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "stdint.h"
-#include "util.h"
+#include "libs/stdint.h"
+#include "libs/util.h"
 
 struct idt_entry{
     uint16_t base_low;      // offset bits 0..15
