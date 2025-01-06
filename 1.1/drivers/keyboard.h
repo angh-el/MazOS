@@ -4,10 +4,10 @@
 #include "../libs/printf.h"
 #include "../libs/util.h"
 
-#include "../idt.h"
+
 
 void init_keyboard();
-void handle_keyboard(struct interrupt_register* registers);
+void handle_keyboard(struct interrupt_register* regs);
 
 
 

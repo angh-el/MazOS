@@ -1,5 +1,5 @@
 #include "keyboard.h"
-
+#include "../idt.h"
 
 
 
@@ -52,9 +52,12 @@ UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,
 UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN
 };
 
+void test(){
+    printf("Yooooo this bih works");
+}
 
-void handle_keyboard(struct interrupt_register* r){
-        // print("inside handle_keyboard\n");
+void handle_keyboard(struct interrupt_register* regs){
+    // test();
     
     // what key is being pressed
     char keyCode = port_byte_in(0x60) & 0x7f;
@@ -97,5 +100,4 @@ void handle_keyboard(struct interrupt_register* r){
 
 void init_keyboard(){
     irq_install_handler(1, &handle_keyboard);
-
 }

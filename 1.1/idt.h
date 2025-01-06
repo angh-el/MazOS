@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef IDT_H
+#define IDT_H
+
 #include "libs/stdint.h"
 #include "libs/util.h"
 
@@ -19,6 +22,10 @@ struct idt_ptr{
 void init_idt();
 void set_idt(uint8_t num, uint32_t base, uint16_t selector, uint8_t flags);
 void handle_isr(struct interrupt_register* registers);
+
+void irq_install_handler (int irq, void (*handler)(struct interrupt_register *r));
+
+void print_irq_routine(int irq);
 
 extern void isr0();
 extern void isr1();
@@ -70,3 +77,5 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
+
+#endif

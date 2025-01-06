@@ -16,6 +16,16 @@ unsigned char port_byte_in ( unsigned short port ) {
     return result ;
 }
 
+// char port_byte_in ( uint16_t port ) {
+//     // A handy C wrapper function that reads a byte from the specified port
+//     // "=a" ( result ) means : put AL register in variable RESULT when finished
+//     // "d" ( port ) means : load EDX with port
+//     char result ;
+//     asm volatile("inb %1, %0" : "=a" (result) : "d" (port));
+//     return result ;
+// }
+
+
 void port_byte_out ( unsigned short port , unsigned char data ) {
     // "a" ( data ) means : load EAX with data
     // "d" ( port ) means : load EDX with port

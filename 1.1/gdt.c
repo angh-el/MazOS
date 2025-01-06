@@ -1,5 +1,6 @@
 #include "gdt.h"
 #include "libs/util.h"
+#include "libs/printf.h"
 
 extern void gdt_flush(uint32_t);
 extern void tss_flush();
@@ -15,8 +16,8 @@ void init_gdt(){
     set_gdt(0, 0, 0, 0, 0);                 // null segment
     set_gdt(1, 0, 0xffffffff, 0x9a, 0xcf);  // kernel code segment
     set_gdt(2, 0, 0xffffffff, 0x92, 0xcf);  // kernel data segment
-    // set_gdt(3, 0, 0xffffffff, 0xfa, 0xcf);  // user code segment
-    // set_gdt(4, 0, 0xffffffff, 0xf2, 0xcf);  // user data segment
+    set_gdt(3, 0, 0xffffffff, 0xfa, 0xcf);  // user code segment
+    set_gdt(4, 0, 0xffffffff, 0xf2, 0xcf);  // user data segment
     set_tss(5, 0x10, 0x00);
 
     gdt_flush((uint32_t)&gdt_ptr);

@@ -82,13 +82,16 @@ kernel:
 	gcc -m32 -fno-stack-protector -fno-builtin -c idt.c -o idt.o
 	gcc -m32 -fno-stack-protector -fno-builtin -c libs/printf.c -o printf.o
 	gcc -m32 -fno-stack-protector -fno-builtin -c drivers/keyboard.c -o keyboard.o
+
+	gcc -m32 -fno-stack-protector -fno-builtin -c timer.c -o timer.o
+
 boot:
 	nasm -f elf32 boot.s -o boot.o
 	nasm -f elf32 gdt_flush.s -o gdt_flush.o
 	nasm -f elf32 idt_flush.s -o idt_flush.o
 
 image:
-	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o gdt.o gdt_flush.o util.o idt.o idt_flush.o printf.o keyboard.o
+	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o gdt.o gdt_flush.o util.o idt.o idt_flush.o printf.o keyboard.o timer.o
 	mv kernel os/boot/kernel
 	grub-mkrescue -o os.iso os/
 	rm *.o

@@ -1,6 +1,7 @@
 #include "idt.h"
 #include "drivers/screen.h"
 #include "libs/util.h"
+#include "libs/printf.h"
 
 struct idt_entry idt_entries[256];
 struct idt_ptr idt_ptr;
@@ -9,6 +10,7 @@ extern void idt_flush(uint32_t);
 
 
 void init_idt(){
+    printf("init_idt\n");
     idt_ptr.limit = sizeof(struct idt_entry) * 256 - 1;
     idt_ptr.base = (uint32_t) &idt_entries;
 
@@ -25,10 +27,10 @@ void init_idt(){
     port_byte_out(0x21, 0x0);
     port_byte_out(0xA1, 0x0);
 
-    set_idt(0, (uint32_t)isr0,0x08, 0x8E);
-    set_idt(1, (uint32_t)isr1,0x08, 0x8E);
-    set_idt(2, (uint32_t)isr2,0x08, 0x8E);
-    set_idt(3, (uint32_t)isr3,0x08, 0x8E);
+    set_idt(0, (uint32_t)isr0, 0x08, 0x8E);
+    set_idt(1, (uint32_t)isr1, 0x08, 0x8E);
+    set_idt(2, (uint32_t)isr2, 0x08, 0x8E);
+    set_idt(3, (uint32_t)isr3, 0x08, 0x8E);
     set_idt(4, (uint32_t)isr4, 0x08, 0x8E);
     set_idt(5, (uint32_t)isr5, 0x08, 0x8E);
     set_idt(6, (uint32_t)isr6, 0x08, 0x8E);
@@ -85,8 +87,8 @@ void set_idt(uint8_t num, uint32_t base, uint16_t selector, uint8_t flags){
     idt_entries[num].base_low = base & 0xffff;
     idt_entries[num].base_high = (base >> 16) & 0xffff;
     idt_entries[num].selector = selector;
-    idt_entries[num].flags = flags | 0x60;
     idt_entries[num].zero = 0;
+    idt_entries[num].flags = flags | 0x60;
 }
 
 unsigned char* interrupt_messages[] ={
@@ -124,38 +126,54 @@ unsigned char* interrupt_messages[] ={
     "Reserved"
 };
 
-void handle_isr(struct interrupt_register* registers){
-    if(registers->interrupt_num < 32){
-        print(interrupt_messages[registers->interrupt_num]);
+void handle_isr(struct interrupt_register* registers){                                                                                         
+    if(registers->int_no < 32){
+        print(interrupt_messages[registers->int_no]);
         print("\nSystem is on a break styulll\n");
 
-        // pic_acknowledge(registers->interrupt_num);
+        
         for(;;);
     }   
 }
 
 void *irq_routines[16] = {
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void irq_install_handler (int irq, void (*handler)(struct interrupt_register *reg)){
+void irq_install_handler (int irq, void (*handler)(struct interrupt_register *r)){
+    printf("Installed IRQ %d handler at 0x%x\n", irq, (uint32_t)handler);
     irq_routines[irq] = handler;
+    // printf("irq_routines[0]: 0x%x\n", irq_routines[0]);
+    // printf("irq_routines[1]: 0x%x\n", irq_routines[1]);
 }
 
 void clear_irq_handler(int irq){
     irq_routines[irq] = 0;
 }
 
-void handle_irq(struct interrupt_register *registers){
-    void(*handler)(struct interrupt_register *registers);
-    handler = irq_routines[registers->interrupt_num - 32];
+void handle_irq(struct interrupt_register *regs){
+    // printf("handle_irq, interrupt_number: %d \n", registers->int_no-32);
     
-    if(handler) handler(registers);
+    // printf("irq_routines[%d]: 0x%x\n", registers->int_no-32, irq_routines[registers->int_no-32]);
+    // printf("irq_routines[1]: 0x%x\n", irq_routines[1]);
+    void(*handler)(struct interrupt_register *regs);
+    handler = irq_routines[regs->int_no-32]; 
 
-    if(registers->interrupt_num >= 40) port_byte_out(0xa0, 0x20);
+    // print_irq_routine(regs->int_no -32-14);
 
+    if(handler){
+        handler(regs);    
+    } 
+
+    if(regs->int_no >= 40){
+        port_byte_out(0xa0, 0x20);
+    } 
     port_byte_out(0x20, 0x20);
+
+    
+}
+
+void print_irq_routine(int irq){
+    printf("irq_routines[%d]: 0x%x\n",irq, irq_routines[irq]);
 }

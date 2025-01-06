@@ -28,59 +28,11 @@ idt_flush:
     irq%1:
         CLI
         PUSH LONG 0
-        PUSH LONG 2
+        PUSH LONG %2
         JMP common_interrupt_request_handler
 %endmacro
 
-extern handle_isr
-common_interrupt_handler:
-    pusha
-    mov eax,ds
-    PUSH eax
-    MOV eax, cr2
-    PUSH eax
-    MOV ax, 0x10
-    MOV ds, ax
-    MOV es, ax
-    MOV fs, ax
-    MOV gs, ax
-    PUSH esp
-    CALL handle_isr
-    ADD esp, 8
-    POP ebx
-    MOV ds, bx
-    MOV es, bx
-    MOV fs, bx
-    MOV gs, bx
-    POPA
-    ADD esp, 8
-    STI
-    IRET   
 
-extern handle_irq
-common_interrupt_request_handler:
-    pusha
-    mov eax,ds
-    PUSH eax
-    MOV eax, cr2
-    PUSH eax
-    MOV ax, 0x10
-    MOV ds, ax
-    MOV es, ax
-    MOV fs, ax
-    MOV gs, ax
-    PUSH esp
-    CALL handle_irq
-    ADD esp, 8
-    POP ebx
-    MOV ds, bx
-    MOV es, bx
-    MOV fs, bx
-    MOV gs, bx
-    POPA
-    ADD esp, 8
-    STI
-    IRET
 
 
 no_error_code_interrupt_handler 0
@@ -135,3 +87,60 @@ interrupt_request  12,    44
 interrupt_request  13,    45
 interrupt_request  14,    46
 interrupt_request  15,    47
+
+
+
+
+extern handle_isr
+common_interrupt_handler:
+    pusha
+    mov eax,ds
+    PUSH eax
+    MOV eax, cr2
+    PUSH eax
+    MOV ax, 0x10
+    MOV ds, ax
+    MOV es, ax
+    MOV fs, ax
+    MOV gs, ax
+    PUSH esp
+    CALL handle_isr
+    ADD esp, 8
+    POP ebx
+    MOV ds, bx
+    MOV es, bx
+    MOV fs, bx
+    MOV gs, bx
+    POPA
+    ADD esp, 8
+    STI
+    IRET   
+
+extern handle_irq
+common_interrupt_request_handler:
+    pusha
+    mov eax,ds
+    PUSH eax
+    MOV eax, cr2
+    PUSH eax
+
+    MOV ax, 0x10
+    MOV ds, ax
+    MOV es, ax
+    MOV fs, ax
+    MOV gs, ax
+
+    PUSH esp
+    CALL handle_irq
+
+    ADD esp, 8
+    POP ebx
+    MOV ds, bx
+    MOV es, bx
+    MOV fs, bx
+    MOV gs, bx
+    
+    POPA
+    ADD esp, 8
+    STI
+    IRET
