@@ -128,6 +128,7 @@ unsigned char* interrupt_messages[] ={
 
 void handle_isr(struct interrupt_register* registers){                                                                                         
     if(registers->int_no < 32){
+
         print(interrupt_messages[registers->int_no]);
         print("\nSystem is on a break styulll\n");
 

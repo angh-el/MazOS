@@ -6,11 +6,12 @@
 #include "libs/multiboot.h"
 #include "libs/memory_init.h"
 
+#include "libs/kernel_memory.h"
+
 #include "timer.h"
 
 void kmain(uint32_t magic, struct multiboot_info* bootInfo);
 void print_logo();
-
 
 
 void kmain(uint32_t magic, struct multiboot_info* bootInfo){
@@ -24,8 +25,6 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
     init_idt();
     print("Successfully enabled interrupts\n\n");
 
-    // // print("\nDividing by 0 ...\n");
-    // // print(2/0);
 
     init_keyboard();
     print("Successfully enabled keyboard driver\n");
@@ -35,6 +34,15 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
     
     init_memory(bootInfo->mem_upper * 1024, physicalAllocationStart);
     print("Successfully Allocated Memory\nPaging Done?\n");
+    
+
+    memory_map_page((uint32_t)bootInfo, (uint32_t)bootInfo, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE);
+
+
+    print("Allocating memory for kernel\n");
+    init_kmalloc(0x1000);
+    // print("kmalloc successfuly init ??\n");
+
 
     // init_timer();
 
