@@ -18,6 +18,7 @@ kernel:
 	gcc -m32 -fno-stack-protector -fno-builtin -c timer.c -o timer.o
 	gcc -m32 -fno-stack-protector -fno-builtin -c programs/calculator.c -o calculator.o
 	gcc -m32 -fno-stack-protector -fno-builtin -c programs/snake.c -o snake.o
+	gcc -m32 -fno-stack-protector -fno-builtin -c drivers/disk_io.c -o disk_io.o
 
 boot:
 	nasm -f elf32 boot.s -o boot.o
@@ -27,7 +28,7 @@ boot:
 
 
 image:
-	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o gdt.o gdt_flush.o util.o idt.o idt_flush.o printf.o keyboard.o timer.o memory_init.o kernel_memory.o process.o process_s.o calculator.o snake.o
+	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o gdt.o gdt_flush.o util.o idt.o idt_flush.o printf.o keyboard.o timer.o memory_init.o kernel_memory.o process.o process_s.o calculator.o snake.o disk_io.o
 	mv kernel os/boot/kernel
 
 	mkdir -p os/files

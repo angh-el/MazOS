@@ -8,9 +8,12 @@
 
 #include "libs/kernel_memory.h"
 #include "libs/process.h"
+#include "drivers/disk_io.h"
 
 #include "programs/calculator.h"
 #include "programs/snake.h"
+
+
 
 #include "timer.h"
 
@@ -20,6 +23,37 @@ void print_logo();
 
 void init_process_management();
 void test_process_creation();
+
+
+void test_disk_read() {
+    if (disk_initialize() != 0) {
+        printf("Disk initialization failed!\n");
+        return;
+    }
+
+
+    uint32_t disk_size = get_disk_size();
+    if (disk_size == -1) {
+        print("Failed to retrieve disk size!\n");
+        return;
+    }
+    printf("Disk size: ");
+    printf("%d", disk_size); // Assuming print_int is a helper to display integers
+    printf(" sectors\n");
+
+
+    // uint8_t buffer[512];
+    // if (read_sector(0, buffer) == 0) {
+    //     print("Sector 0 read successfully:\n");
+    //     for (int i = 0; i < 512; i++) {
+    //         // print_char(buffer[i], i % 80, i / 80, 0x0F);
+    //         printf("%c", buffer[i]);
+    //     }
+    // } else {
+    //     printf("Failed to read sector 0\n");
+    // }
+}
+
 
 
 void kmain(uint32_t magic, struct multiboot_info* bootInfo){
@@ -55,7 +89,11 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
     init_kmalloc(0x1000);
     
     // calculator();
-    start_snake_game();
+    // start_snake_game();
+
+
+    test_disk_read();
+
 
     // Initialize the process management system
     // init_process_management();
