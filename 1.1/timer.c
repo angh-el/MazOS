@@ -5,11 +5,11 @@
 #include "timer.h"
 
 uint64_t ticks;
-const uint32_t freq = 100;
+uint32_t freq = 100;
 
 void onIrq0(struct interrupt_register *regs){
     ticks += 1;
-    printf("hello ");
+    // printf("%d ", ticks);
 }
 
 void init_timer(){
@@ -23,4 +23,17 @@ void init_timer(){
     port_byte_out(0x43,0x36);
     port_byte_out(0x40,(uint8_t)(divisor & 0xFF));
     port_byte_out(0x40,(uint8_t)((divisor >> 8) & 0xFF));
+}
+
+void kill_timer(){
+    clear_irq_handler(0);
+}
+
+
+int getTicks(){
+    return ticks;
+}
+
+void setFreq(uint32_t frequency){
+    freq = frequency;
 }

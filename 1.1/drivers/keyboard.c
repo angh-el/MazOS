@@ -1,7 +1,10 @@
 #include "keyboard.h"
 #include "../idt.h"
 
+boolean shift;
+boolean caps;
 
+Mode currentMode = MODE_DEFUALT;
 
 
 const uint32_t UNKNOWN = 0xFFFFFFFF;
@@ -40,11 +43,7 @@ const uint32_t NUMLCK = 0xFFFFFFFF - 32;
 
 
 const uint32_t lowercase[128] = {
-UNKNOWN,ESC,'1','2','3','4','5','6','7','8',
-'9','0','-','=','\b','\t','q','w','e','r',
-'t','y','u','i','o','p','[',']','\n',CTRL,
-'a','s','d','f','g','h','j','k','l',';',
-'\'','`',LSHFT,'\\','z','x','c','v','b','n','m',',',
+UNKNOWN,ESC,'1','2','3','4','5','6','7','8','9','0','-','=','\b','\t','q','w','e','r','t','y','u','i','o','p','[',']','\n',CTRL, 'a','s','d','f','g','h','j','k','l',';','\'','`',LSHFT,'\\','z','x','c','v','b','n','m',',',
 '.','/',RSHFT,'*',ALT,' ',CAPS,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,NUMLCK,SCRLCK,HOME,UP,PGUP,'-',LEFT,UNKNOWN,RIGHT,
 '+',END,DOWN,PGDOWN,INS,DEL,UNKNOWN,UNKNOWN,UNKNOWN,F11,F12,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,
 UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,
@@ -52,9 +51,17 @@ UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,
 UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN
 };
 
-void test(){
-    printf("Yooooo this bih works");
-}
+const uint32_t uppercase[128] = {
+UNKNOWN,ESC,'!','@','#','$','%','^','&','*','(',')','_','+','\b','\t','Q','W','E','R',
+'T','Y','U','I','O','P','{','}','\n',CTRL,'A','S','D','F','G','H','J','K','L',':','"','~',LSHFT,'|','Z','X','C',
+'V','B','N','M','<','>','?',RSHFT,'*',ALT,' ',CAPS,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,NUMLCK,SCRLCK,HOME,UP,PGUP,'-',
+LEFT,UNKNOWN,RIGHT,'+',END,DOWN,PGDOWN,INS,DEL,UNKNOWN,UNKNOWN,UNKNOWN,F11,F12,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,
+UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,
+UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,
+UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN
+};
+
+
 
 void handle_keyboard(struct interrupt_register* regs){
     // test();
@@ -69,6 +76,7 @@ void handle_keyboard(struct interrupt_register* regs){
     case 1:
     case 29:
     case 56:
+    case 54:
     case 59:
     case 60:
     case 61:
@@ -84,15 +92,39 @@ void handle_keyboard(struct interrupt_register* regs){
         break;
     
     case 42:
-        //shift
+        if(press == 0)shift = true;
+        else shift = false;
         break;
     case 58:
-        //caps
+        if(!caps && press == 0) caps = true;
+        else if(caps && press == 0) caps = false;
         break;
 
     default:
         if(press == 0){
-            printf("%c", lowercase[keyCode]);
+            if(shift || caps ){
+                if(currentMode == MODE_DEFUALT){
+                    printf("%c",uppercase[keyCode]);
+                }
+                if(currentMode == MODE_CALCULATOR){
+                    append_to_buffer(uppercase[keyCode]);
+                }
+                if(currentMode == MODE_SNAKE){
+                    update_direction(uppercase[keyCode]);
+                }
+
+            }
+            else{
+                if(currentMode == MODE_DEFUALT){
+                    printf("%c", lowercase[keyCode]);
+                }
+                if(currentMode == MODE_CALCULATOR){
+                    append_to_buffer(lowercase[keyCode]);
+                }
+                if(currentMode == MODE_SNAKE){
+                    update_direction(lowercase[keyCode]);
+                }
+            } 
         }
         break;
     }
@@ -100,4 +132,13 @@ void handle_keyboard(struct interrupt_register* regs){
 
 void init_keyboard(){
     irq_install_handler(1, &handle_keyboard);
+}
+
+
+void setCurrentMode(Mode mode){
+    currentMode = mode;
+}
+
+Mode getCurrentMode(){
+    return currentMode;
 }

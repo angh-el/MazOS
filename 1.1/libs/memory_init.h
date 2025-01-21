@@ -22,6 +22,10 @@ void memory_change_page_dir(uint32_t * pd);
 void memory_map_page(uint32_t vir_addr, uint32_t phys_addr, uint32_t flags);
 void sync_page_dirs();
 
+uint32_t *memory_alloc_page_dir();
+uint32_t memory_unmap_page(uint32_t vir_addr);
+void physical_memory_free_page_frame(uint32_t phys_addr);
+
 #define KERNEL_MALLOC 0xD000000
 #define REC_PAGEDIR ((uint32_t*)0xFFFFF000)
 #define REC_PAGETABLE(i) ((uint32_t*) (0xFFC00000 + ((i) << 12)))

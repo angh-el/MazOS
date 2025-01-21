@@ -1,6 +1,8 @@
 #include "screen.h"
 #include "../libs/util.h"
 
+
+
 /* Copy bytes from one place to another . */
 void memory_copy ( char * source , char * dest , int no_bytes ) {
     for (int i = 0; i < no_bytes; i++ ){
@@ -125,21 +127,26 @@ void print_char(char character , int col , int row , char attribute_byte ) {
     // current row , so it will be advanced to the first col
     // of the next row.
     if ( character == '\n') {
-        int rows = offset / (2* MAX_COLS );
-        offset = get_screen_offset(79 , rows );
-    // Otherwise , write the character and its attribute byte to
-    // video memory at our calculated offset .
-    } 
+        int rows = offset / (2* MAX_COLS);
+        offset = get_screen_offset(79 , rows);
+        character = '\b';
+        offset+=4;
+    }
+    if(character == '\b'){
+        offset -= 2; // Move back by one character (2 bytes per character cell)
+        vidmem[offset] = ' '; // Clear the character
+        vidmem[offset + 1] = attribute_byte; // Retain the same attribute
+    }
     else {
+      
         vidmem[offset] = (const char*) character ;
         vidmem[offset+1] = attribute_byte ;
-
-        // vidmem[offset ] = (character << 8) | attribute_byte;
+        // set_cursor(get_cursor());
+        offset += 2;
     }
     
     // Update the offset to the next character cell , which is
     // two bytes ahead of the current cell .
-    offset += 2;
     
     // Make scrolling adjustment , for when we reach the bottom
     // of the screen .

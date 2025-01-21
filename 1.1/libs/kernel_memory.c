@@ -32,3 +32,49 @@ void init_kmalloc(uint32_t heap_size){
     *((uint32_t *) heap_start);
 }
 
+
+// Allocates memory from the kernel heap
+void *kmalloc(uint32_t size) {
+    if (!kernel_memory_init) {
+        // If the kernel heap isn't initialized, return NULL or panic
+        return NULL;
+    }
+
+    // Align size to the nearest multiple of 4 bytes (or 16 bytes for better alignment)
+    size = (size + 3) & ~3;
+
+    // Check if we have enough space in the heap
+    if (heap_size + size > limit) {
+        // If not, increase the heap size
+        change_heap_size(heap_size + size);
+    }
+
+    // Allocate memory at the current heap position
+    uint32_t *allocated_mem = (uint32_t *)(heap_start + heap_size);
+
+    // Update the heap size to reflect the allocation
+    heap_size += size;
+
+    // Return the allocated memory pointer
+    return allocated_mem;
+}
+
+
+
+
+// Free a previously allocated kernel memory block
+void kfree(void *ptr) {
+    if (!ptr) {
+        return; // Do nothing for NULL pointers
+    }
+
+    // Align the address to the page size (4 KB)
+    uint32_t addr = (uint32_t)ptr;
+    addr &= ~(0xFFF); // Clear lower 12 bits to get the page-aligned address
+
+    // Unmap the page and free the associated physical frame
+    uint32_t phys_addr = memory_unmap_page(addr); // Unmap and get physical address
+    if (phys_addr) {
+        physical_memory_free_page_frame(phys_addr); // Mark the physical frame as free
+    }
+}
