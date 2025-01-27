@@ -34,4 +34,7 @@ int disk_initialize(void);
  */
 uint32_t get_disk_size(void);
 
+
+int read_bytes(uint32_t start_byte, uint32_t num_bytes, uint8_t *buffer);
+
 #endif // DISK_IO_H

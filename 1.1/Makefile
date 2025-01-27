@@ -19,6 +19,7 @@ kernel:
 	gcc -m32 -fno-stack-protector -fno-builtin -c programs/calculator.c -o calculator.o
 	gcc -m32 -fno-stack-protector -fno-builtin -c programs/snake.c -o snake.o
 	gcc -m32 -fno-stack-protector -fno-builtin -c drivers/disk_io.c -o disk_io.o
+	gcc -m32 -fno-stack-protector -fno-builtin -c drivers/fat32.c -o fat32.o
 
 boot:
 	nasm -f elf32 boot.s -o boot.o
@@ -28,11 +29,15 @@ boot:
 
 
 image:
-	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o gdt.o gdt_flush.o util.o idt.o idt_flush.o printf.o keyboard.o timer.o memory_init.o kernel_memory.o process.o process_s.o calculator.o snake.o disk_io.o
+	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o gdt.o gdt_flush.o util.o idt.o idt_flush.o printf.o keyboard.o timer.o memory_init.o kernel_memory.o process.o process_s.o calculator.o snake.o disk_io.o fat32.o
 	mv kernel os/boot/kernel
 
 	mkdir -p os/files
-	cp testfile.txt os/files/
+#	cp testfile.txt os/files/
+
+	
+#	cp filesystem.img os/boot/
+	cp filesystem.img os/files/
 
 	grub-mkrescue -o os.iso os/
 	rm *.o
@@ -87,10 +92,10 @@ run: os.iso
 
 
 ####################################################################################
-# # how to make the fat 32 and mount it to the os and shii
+# # # how to make the fat 32 and mount it to the os and shii
 
 # # Create a 100MB FAT32 filesystem image
-# dd if=/dev/zero of=filesystem.img bs=1M count=100
+# dd if=/dev/zero of=filesystem.img bs=1M count=50
 # mkfs.fat -F 32 filesystem.img
 
 

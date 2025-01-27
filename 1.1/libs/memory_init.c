@@ -72,7 +72,7 @@ uint32_t physical_memory_alloc_page_frame(){
 
     for (uint32_t b = start; b < end; b++){
         uint8_t byte = physical_memory_bitmap[b];
-        printf("YOOOOOOOOOOO: %d ",byte);
+        // printf("YOOOOOOOOOOO: %d ",byte);
         if (byte == 0xFF){
             continue;
         }
