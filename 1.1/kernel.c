@@ -27,56 +27,7 @@ void init_process_management();
 void test_process_creation();
 
 
-// void test_disk_read() {
-//     if (disk_initialize() != 0) {
-//         printf("Disk initialization failed!\n");
-//         return;
-//     }
 
-
-//     uint32_t disk_size = get_disk_size();
-//     if (disk_size == -1) {
-//         print("Failed to retrieve disk size!\n");
-//         return;
-//     }
-//     printf("Disk size: ");
-//     printf("%d", disk_size); // Assuming print_int is a helper to display integers
-//     printf(" sectors\n");
-
-//     uint8_t *write_buffer = "THis is a test disk right function";
-//     write_sector(22726, write_buffer);
-
-
-//     for(uint32_t sector = 22720; sector < disk_size; sector++){
-//         uint8_t buffer[512];
-//         printf("\n\n");
-        
-//         volatile int delay = 3000000000;
-//         while (delay--) {
-//             // if (delay % 1000000 == 0) {
-//             //     printf("."); // Print periodically to track delay progress
-//             // }
-//             __asm__ __volatile__("nop");
-//         }
-        
-//         // for(int volatile i; i < 3000000; i++){
-//         //     __asm__ __volatile__("nop");
-//         // }
-//         if (read_sector(sector, buffer) == 0) {
-//             printf("Sector %d read successfully:\n", sector);
-//             for (int i = 0; i < 512; i++) {
-//                 // print_char(buffer[i], i % 80, i / 80, 0x0F);
-//                 printf("%c", buffer[i]);
-//             }
-            
-//         } else {
-//             printf("Failed to read sector 0\n");
-//         }
-        
-//     }
-    
-    
-// }
 
 
 void kmain(uint32_t magic, struct multiboot_info* bootInfo){
@@ -114,47 +65,39 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
     // calculator();
     // start_snake_game();
 
-    // test_disk_read();
-
-    // for(int i =0; i<get_disk_size; i++){
-    //     uint32_t boot_sector_number = i;  // Typically, the first sector of the disk
-    //     if (fat32_mount(boot_sector_number) != 0) {
-    //         printf("FAT32 mount failed!\n");
-    //         // return -1;
-    //     }
-    //     printf("\n\n");
-    //     sleep();        
-    // }
-
+ 
 
     if (fat32_mount(0) != 0) {
         printf("FAT32 mount failed!\n");
         // return -1;
     }
-    read_root_directory();
-    printf("\n\n");
-    // read_file("TESTFILETXT");
-// 
-    // printf("Read complete\n");
 
-    // for(int i = 24330; i < 24330 + 6; i++){
-        // uint8_t buffer[512];
-        // int sector = i;
-        // if (read_sector(24330, buffer) == 0) {
-        //     printf("Sector %d read successfully:\n", 24330);
-        //     for (int i = 0; i < 512; i++) {
-        //         // print_char(buffer[i], i % 80, i / 80, 0x0F);
-        //         printf("%c", buffer[i]);
-        //     }
-        // }
-        // sleep();
-    // }    
-    // read_file("TESTFILETXT");   
-    read_file("RECIPE  TXT");
-    // read_file("RECIPETXT");    
-    
-    
-    // print_logo();
+  
+    // /// LINES TO TEST FILE / DIRECTORY CREATION
+    // // read_root_directory();
+    // printf("\n\n");
+    // read_file("MAZOS   TXT");
+    // // ls();    
+    // create_entry("NEWDIR    ", 0x10);
+    // cd("NEWDIR     ");
+    // create_entry("NEWFILE TXT", 0x20);
+
+    // // cd("RECIPES    ");
+    // ls();
+    // // read_file("PANCAKE TXT");
+    // // read_file("MUFFIN  TXT");
+    // // cd("GLUTENFR   ");
+    // cd_up("..         ");
+    // ls();
+    // // cd_up("..         ");
+    // // ls();
+    // // cd("RECIPES    ");
+    // // ls();
+    // // cd_up("..         ");
+    // // ls();
+    ///////////////////////////////////////////////////////////
+
+
 
     // Initialize the process management system
     // init_process_management();

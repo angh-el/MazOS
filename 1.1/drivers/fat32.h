@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../libs/stdint.h"
+#include "../libs/util.h"
 
 struct FAT32_BootSector {
     uint8_t jump_code[3];             // 0x00 - Jump instruction (to execute the bootloader)

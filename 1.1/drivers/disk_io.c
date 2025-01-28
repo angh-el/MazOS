@@ -82,6 +82,17 @@ int write_sector(uint32_t sector_number, const uint8_t *buffer) {
     // drive and head information
     port_byte_out(ATA_PRIMARY_IO_BASE + 6, 0xE0 | ((sector_number >> 24) & 0x0F));
 
+    // printf("buffer: %s\n", buffer);
+    // printf("sector_number: %d\n", sector_number);
+    // printf("\n", sector_number);
+
+    printf("\n");
+    
+    // set_cursor(get_cursor() - 80);
+    // printf("\b");
+    // printf("\b");printf("\b");printf("\b");printf("\b");printf("\b");
+    // sector_number = sector_number + 5;
+    // sector_number = sector_number - 5;
     // sector count (1 sector)
     port_byte_out(ATA_PRIMARY_IO_BASE + 2, 1);
 
@@ -92,7 +103,7 @@ int write_sector(uint32_t sector_number, const uint8_t *buffer) {
 
     // WRITE SECTORS command (0x30)
     port_byte_out(ATA_PRIMARY_IO_BASE + 7, 0x30);
-
+    // printf("YOOOO\n");
     // Wait for drive to be ready
     uint8_t status = port_byte_in(ATA_PRIMARY_IO_BASE + 7);
     while (!(status & 0x08)) { // check the DRQ (Data Request) flag
@@ -110,6 +121,7 @@ int write_sector(uint32_t sector_number, const uint8_t *buffer) {
     // flush the cache
     port_byte_out(ATA_PRIMARY_IO_BASE + 7, 0xE7);
 
+    // set_cursor(get_cursor() - 80);
     return 0; 
 }
 

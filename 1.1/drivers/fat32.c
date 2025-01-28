@@ -7,6 +7,9 @@ struct FAT32_BootSector boot_sector;
 
 int fat32_start_sector;
 
+uint32_t current_directory_cluster;
+uint32_t root_directory_cluster;
+
 // uint32_t get_next_cluster(uint32_t current_cluster) {
 //     // uint32_t fat_offset =  current_cluster * 4 + 22712;  // 4 bytes per FAT entry
 //     uint32_t fat_offset =  current_cluster * 4 + 0;
@@ -105,6 +108,8 @@ int fat32_mount(uint32_t sector_number) {
         // Step 2: Copy boot sector information into our structure
         simple_memcpy(&boot_sector, buffer, sizeof(struct FAT32_BootSector));
 
+        current_directory_cluster = boot_sector.root_cluster;
+        root_directory_cluster = boot_sector.root_cluster;
         // Step 3: Validate the boot sector (you can extend validation as per your needs)
         if (boot_sector.bytes_per_sector == 0 || boot_sector.sectors_per_cluster == 0) {
             // printf("Invalid boot sector data!\n");
@@ -330,7 +335,8 @@ void read_root_directory() {
 
 void read_file(const char *filename) {
     // Starting sector of the root directory
-    uint32_t root_cluster = boot_sector.root_cluster;
+    // uint32_t root_cluster = boot_sector.root_cluster;
+    uint32_t root_cluster = current_directory_cluster;
     uint32_t sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
 
     uint8_t buffer[512]; // Buffer to hold sector data
@@ -438,3 +444,348 @@ void read_file(const char *filename) {
 
 
 
+
+
+void ls() {
+    uint32_t sector_number = cluster_to_sector(current_directory_cluster) + fat32_start_sector;
+    uint8_t buffer[512];
+
+    printf("Listing directory contents...\n");
+
+    uint32_t directory_cluster = current_directory_cluster;
+    while (directory_cluster < 0x0FFFFFF8) {
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading sector %u\n", sector_number);
+            return;
+        }
+
+        for (int i = 0; i < 512; i += 32) {
+            struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+
+            if (entry->name[0] == 0x00) {
+                return; // End of directory
+            }
+            if (entry->name[0] == 0xE5) {
+                continue; // Deleted entry
+            }
+            if (entry->attributes & 0x0F) {
+                continue; // Skip long name entries
+            }
+
+            // Print name and type
+            printf("Name: ");
+            for (int j = 0; j < 11; j++) {
+                if (entry->name[j] != ' ') {
+                    printf("%c", entry->name[j]);
+                }
+            }
+
+            if (entry->attributes & 0x10) {
+                printf(" [DIR]");
+            } else {
+                printf(" [FILE]");
+            }
+            printf(" Cluster number: %d", (entry->first_cluster_high << 16) | entry->first_cluster_low);
+            printf("\n");
+        }
+
+        // Move to the next cluster in the directory
+        directory_cluster = get_next_cluster(directory_cluster);
+        sector_number = cluster_to_sector(directory_cluster) + fat32_start_sector;
+    }
+}
+
+
+
+void cd(const char *dirname) {
+    uint32_t sector_number = cluster_to_sector(current_directory_cluster) + fat32_start_sector;
+    uint8_t buffer[512];
+    uint32_t directory_cluster = current_directory_cluster;
+
+    while (directory_cluster < 0x0FFFFFF8) {
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading sector %u\n", sector_number);
+            return;
+        }
+
+        for (int i = 0; i < 512; i += 32) {
+            struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+
+            if (entry->name[0] == 0x00) {
+                printf("Directory not found: %s\n", dirname);
+                return;
+            }
+            if (entry->name[0] == 0xE5) {
+                continue; // Deleted entry
+            }
+            if (entry->attributes & 0x0F) {
+                continue; // Skip long name entries
+            }
+
+            // Match directory name
+            char entry_name[12] = {0};
+            for (int j = 0; j < 11; j++) {
+                entry_name[j] = entry->name[j];
+            }
+            entry_name[11] = '\0';
+
+            if (strncmp(entry_name, dirname, 11) == 0 && (entry->attributes & 0x10)) {
+                current_directory_cluster = (entry->first_cluster_high << 16) | entry->first_cluster_low;
+                printf("Changed directory to: %s\n", dirname);
+                return;
+            }
+        }
+
+        // Move to the next cluster in the directory
+        directory_cluster = get_next_cluster(directory_cluster);
+        sector_number = cluster_to_sector(directory_cluster) + fat32_start_sector;
+    }
+
+    printf("Directory not found: %s\n", dirname);
+}
+
+
+// void cd_up() {
+//     uint32_t sector_number = cluster_to_sector(current_directory_cluster) + fat32_start_sector;
+//     uint8_t buffer[512];
+//     uint32_t directory_cluster = current_directory_cluster;
+
+//     while (directory_cluster < 0x0FFFFFF8) {
+//         if (read_sector(sector_number, buffer) != 0) {
+//             printf("Error reading sector %u\n", sector_number);
+//             return;
+//         }
+
+//         for (int i = 0; i < 512; i += 32) {
+//             struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+
+//             if (entry->name[0] == 0x00) {
+//                 printf("No parent directory found.\n");
+//                 return; // End of directory, should never happen in valid FAT32
+//             }
+//             if (entry->name[0] == 0xE5) {
+//                 continue; // Deleted entry
+//             }
+//             if (entry->attributes & 0x0F) {
+//                 continue; // Skip long name entries
+//             }
+
+//             // Check for ".." entry
+//             if (strncmp((char *)entry->name, "..         ", 11) == 0) {
+//                 // Extract the cluster of the parent directory
+//                 uint32_t parent_cluster = (entry->first_cluster_high << 16) | entry->first_cluster_low;
+//                 if (parent_cluster == 0) {
+//                     // Root directory special case
+//                     printf("Already at the root directory.\n");
+//                 } else {
+//                     current_directory_cluster = parent_cluster;
+//                     printf("Moved to parent directory.\n");
+//                 }
+//                 return;
+//             }
+//         }
+
+//         // Move to the next cluster in the directory
+//         directory_cluster = get_next_cluster(directory_cluster);
+//         sector_number = cluster_to_sector(directory_cluster) + fat32_start_sector;
+//     }
+
+//     printf("No parent directory found.\n");
+// }
+
+
+void cd_up() {
+    uint32_t sector_number = cluster_to_sector(current_directory_cluster) + fat32_start_sector;
+    uint8_t buffer[512];
+    uint32_t directory_cluster = current_directory_cluster;
+
+    while (directory_cluster < 0x0FFFFFF8) {
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading sector %u\n", sector_number);
+            return;
+        }
+
+        for (int i = 0; i < 512; i += 32) {
+            struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+
+            if (entry->name[0] == 0x00) {
+                printf("No parent directory found.\n");
+                return; // End of directory, should never happen in valid FAT32
+            }
+            if (entry->name[0] == 0xE5) {
+                continue; // Deleted entry
+            }
+            if (entry->attributes & 0x0F) {
+                continue; // Skip long name entries
+            }
+
+            // Check for ".." entry
+            if (strncmp((char *)entry->name, "..         ", 11) == 0) {
+                // Extract the cluster of the parent directory
+                uint32_t parent_cluster = (entry->first_cluster_high << 16) | entry->first_cluster_low;
+
+                // Correctly handle the root directory case
+                if (current_directory_cluster == root_directory_cluster) {
+                    printf("Already at the root directory.\n");
+                } else {
+                    // printf("PARENT CLUSTER: %d\n", parent_cluster);
+                    if(parent_cluster == 0){
+                        current_directory_cluster = root_directory_cluster;
+                    }
+                    else{
+                        current_directory_cluster = parent_cluster;
+                    }
+                    printf("Moved to parent directory.\n");
+                }
+                return;
+            }
+        }
+
+        // Move to the next cluster in the directory
+        directory_cluster = get_next_cluster(directory_cluster);
+        sector_number = cluster_to_sector(directory_cluster) + fat32_start_sector;
+    }
+
+    printf("No parent directory found.\n");
+}
+
+
+
+
+uint32_t read_fat_entry(uint32_t cluster_number) {
+    // Calculate byte offset of the FAT entry in the FAT table
+    uint32_t fat_offset = cluster_number * 4;
+
+    // Determine the sector containing this FAT entry
+    uint32_t fat_sector = fat32_start_sector + (fat_offset / boot_sector.bytes_per_sector);
+
+    // Offset within the sector
+    uint16_t entry_offset = fat_offset % boot_sector.bytes_per_sector;
+
+    uint8_t buffer[512];
+
+    // Read the FAT sector
+    if (read_sector(fat_sector, buffer) != 0) {
+        printf("Error reading FAT sector: %u\n", fat_sector);
+        return 0xFFFFFFFF; // Return error
+    }
+
+    // Extract the FAT entry (4 bytes)
+    uint32_t fat_entry = *(uint32_t *)&buffer[entry_offset];
+
+    // Mask the upper 4 bits (FAT32 uses only 28 bits)
+    return fat_entry & 0x0FFFFFFF;
+}
+
+
+struct FAT32_DirectoryEntry* find_free_directory_entry(uint8_t* buffer) {
+    for (int i = 0; i < 512; i += 32) {
+        struct FAT32_DirectoryEntry* entry = (struct FAT32_DirectoryEntry*)&buffer[i];
+        if (entry->name[0] == 0x00 || entry->name[0] == 0xE5) {
+            return entry; // Found free entry
+        }
+    }
+    return NULL; // No free entry found
+}
+
+uint32_t find_free_cluster() {
+    int fat_size = (boot_sector.total_sectors_32 - boot_sector.reserved_sectors - (boot_sector.num_fats * boot_sector.sectors_per_fat)) / boot_sector.sectors_per_cluster;
+    for (uint32_t i = 2; i < fat_size; i++) {
+        if (read_fat_entry(i) == 0x00000000) {
+            return i; // Found free cluster
+        }
+    }
+    return 0xFFFFFFFF; // No free cluster
+}
+
+
+void write_fat_entry(uint32_t cluster, uint32_t value) {
+    uint32_t fat_offset = cluster * 4;
+    uint32_t sector = fat32_start_sector + (fat_offset / 512);
+    uint32_t offset = fat_offset % 512;
+
+    uint8_t buffer[512];
+    read_sector(sector, buffer);
+    *((uint32_t*)&buffer[offset]) = value;
+    write_sector(sector, buffer);
+}
+
+
+int create_entry(const char* name, uint8_t attributes) {
+    uint32_t sector_number = cluster_to_sector(current_directory_cluster) + fat32_start_sector;
+    uint8_t buffer[512];
+
+    
+
+    while (1) {
+        
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading sector %u\n", sector_number);
+            return -1;
+        }
+
+        struct FAT32_DirectoryEntry* entry = find_free_directory_entry(buffer);
+        
+        if (entry != NULL) {
+               
+            // Found a free entry, fill it
+            memset(entry->name, ' ', 11);
+            for (int i = 0; i < 11 && name[i] != '\0'; i++) {
+                entry->name[i] = name[i];
+            }
+            
+            entry->attributes = attributes;
+        
+            // Allocate a cluster for the file/directory
+            uint32_t cluster = find_free_cluster();
+             
+            if (cluster == 0xFFFFFFFF) {
+                printf("No free clusters available.\n");
+                return -1;
+            }
+            write_fat_entry(cluster, 0x0FFFFFFF); // end of chain
+            
+            entry->first_cluster_low = cluster & 0xFFFF;
+            entry->first_cluster_high = (cluster >> 16) & 0xFFFF;
+
+            if (attributes & 0x10) {
+                
+                uint8_t dir_buffer[512] = {0};
+                struct FAT32_DirectoryEntry* dot = (struct FAT32_DirectoryEntry*)&dir_buffer[0];
+                struct FAT32_DirectoryEntry* dotdot = (struct FAT32_DirectoryEntry*)&dir_buffer[32];
+                
+                // "." entry
+                memset(dot->name, ' ', 11);
+                dot->name[0] = '.';
+                dot->attributes = 0x10;
+                dot->first_cluster_low = cluster & 0xFFFF;
+                dot->first_cluster_high = (cluster >> 16) & 0xFFFF;
+                
+                // ".." entry
+                memset(dotdot->name, ' ', 11);
+                dotdot->name[0] = '.';
+                dotdot->name[1] = '.';
+                dotdot->attributes = 0x10;
+                dotdot->first_cluster_low = current_directory_cluster & 0xFFFF;
+                dotdot->first_cluster_high = (current_directory_cluster >> 16) & 0xFFFF;
+                
+                // printf("cluster: %d, cluster_to_sector: %d\n", cluster, cluster_to_sector(cluster)+ fat32_start_sector);
+                write_sector(cluster_to_sector(cluster) + fat32_start_sector, dir_buffer);
+                // printf("SHUSHHH");
+            }
+            
+            write_sector(sector_number, buffer);
+            printf("Created %s\n", (attributes & 0x10) ? "directory" : "file");
+            return 0;
+        }
+        
+
+        // Move to the next cluster
+        uint32_t next_cluster = get_next_cluster(current_directory_cluster);
+        if (next_cluster >= 0x0FFFFFF8) {
+            printf("No space in directory to create entry.\n");
+            return -1;
+        }
+        sector_number = cluster_to_sector(next_cluster) + fat32_start_sector;
+    }
+}
