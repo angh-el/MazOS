@@ -17,6 +17,7 @@ void change_heap_size(int new_size){
             memory_map_page(KERNEL_MALLOC+old_page *0x1000+i*0x1000, physica_mem_location, PAGE_FLAG_WRITE);
         }
     }
+    // printf("yassssssss\n");
     heap_size=new_size;
 }
 
@@ -35,11 +36,13 @@ void init_kmalloc(uint32_t heap_size){
 
 // Allocates memory from the kernel heap
 void *kmalloc(uint32_t size) {
+    
     if (!kernel_memory_init) {
         // If the kernel heap isn't initialized, return NULL or panic
         return NULL;
     }
 
+    
     // Align size to the nearest multiple of 4 bytes (or 16 bytes for better alignment)
     size = (size + 3) & ~3;
 
@@ -48,7 +51,8 @@ void *kmalloc(uint32_t size) {
         // If not, increase the heap size
         change_heap_size(heap_size + size);
     }
-
+    
+// printf("size %d\n", size);
     // Allocate memory at the current heap position
     uint32_t *allocated_mem = (uint32_t *)(heap_start + heap_size);
 

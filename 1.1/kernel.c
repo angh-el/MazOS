@@ -14,6 +14,7 @@
 #include "programs/snake.h"
 
 #include "drivers/fat32.h"
+#include "drivers/audio.h"
 
 
 #include "timer.h"
@@ -22,11 +23,6 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo);
 void print_logo();
 
 void sleep();
-
-void init_process_management();
-void test_process_creation();
-
-
 
 
 
@@ -67,50 +63,47 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
 
  
 
-    if (fat32_mount(0) != 0) {
-        printf("FAT32 mount failed!\n");
-        // return -1;
-    }
+    // if (fat32_mount(0) != 0) {
+    //     printf("FAT32 mount failed!\n");
+    //     // return -1;
+    // }
 
-  
-    // /// LINES TO TEST FILE / DIRECTORY CREATION
-    // // read_root_directory();
-    // printf("\n\n");
-    // read_file("MAZOS   TXT");
-    // // ls();    
-    // create_entry("NEWDIR    ", 0x10);
-    // cd("NEWDIR     ");
-    // create_entry("NEWFILE TXT", 0x20);
-
-    // // cd("RECIPES    ");
     // ls();
-    // // read_file("PANCAKE TXT");
-    // // read_file("MUFFIN  TXT");
-    // // cd("GLUTENFR   ");
-    // cd_up("..         ");
-    // ls();
-    // // cd_up("..         ");
-    // // ls();
-    // // cd("RECIPES    ");
-    // // ls();
-    // // cd_up("..         ");
-    // // ls();
-    ///////////////////////////////////////////////////////////
+
+
+    clear_screen();
+
+
+    
 
 
 
-    // Initialize the process management system
-    // init_process_management();
+    // draw_quarters();
+    // while(1){
+    //     process_1();
+    //     // process_2();
+    //     // process_3();
+    //     // process_4();
 
-    // Test process creation and context switching
-    // test_process_creation();
+    //     // sleep();
+    //     // sleep();
+    // }
 
-    // clear_screen();
+    // // Initialize multitasking (allocate the first task, etc.)
+    // initialise_multitasking();
 
-    // init_timer();        22752    
+    // // Run the multitasking test
+    // test_multitasking();  
+
+    // printf("Beep test: 440Hz for 500ms\n");
+    // speaker_beep(440, 500);  // 440Hz for 500ms  
+
+   
+
 
     for(;;);
 }
+
 
 
 void print_logo(){
@@ -126,65 +119,6 @@ void print_logo(){
 }
 
 
-// Function to initialize process management
-void init_process_management() {
-    // Initialize memory for PCB and other process management structures.
-    print("Initializing process management...\n");
-    // Your implementation may go here to initialize process-related structures, etc.
-    init_processes();
-}
-
-
-
-// Example process function 1
-void process1_function() {
-    print("Running process 1\n");
-    for (int i = 0; i < 5; i++) {
-        print("Process 1 - Count: ");
-        printf("%d",i);
-        print("\n");
-    }
-    print("Process 1 finished!\n");
-}
-
-// Example process function 2
-void process2_function() {
-    print("Running process 2\n");
-    for (int i = 0; i < 5; i++) {
-        print("Process 2 - Count: ");
-        printf("%d",i);
-        print("\n");
-    }
-    print("Process 2 finished!\n");
-}
-
-// Function to test process creation
-void test_process_creation() {
-    print("Creating test processes...\n");
-
-    // Allocate memory for PCB (this is where the memory allocation should happen)
-    PCB *process1 = (PCB*) kmalloc(sizeof(PCB));  // Allocate memory for the first PCB
-    PCB *process2 = (PCB*) kmalloc(sizeof(PCB));  // Allocate memory for the second PCB
-
-    // Now that the PCBs are allocated, we can safely map their memory pages
-    memory_map_page((uint32_t)process1, (uint32_t)process1, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE);
-    // memory_map_page((uint32_t)process1->stack, (uint32_t)process1->stack, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE);
-    memory_map_page((uint32_t)process2, (uint32_t)process2, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE);
-
-    // // Create the test processes and initialize their PCBs
-    process1 = create_process((uint32_t)process1_function); // Store the PCB pointer for process1
-    
-    process2 = create_process((uint32_t)process2_function); // Store the PCB pointer for process2
-    
-
-    // printf("stack: %p\n", &process1->stack);
-    // printf("p1_function %p\n", ((uint32_t)process1_function));
-    // print("Testing context switch...\n");
-    
-    
-    // Perform a context switch between the two processes
-    // context_switch(process1, process2);
-}
 
 
 void sleep(){
@@ -193,3 +127,36 @@ void sleep(){
         __asm__ __volatile__("nop");
     }
 }
+
+
+
+/*
+    printf("\n Task Metrics for %s Scheduling:\n", "RR");
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 1, 30, 0);
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 2, 40, 10);
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 3, 50, 20);
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 4, 60, 20);    
+    printf(" Average Turnaround Time: %d   ", 45);
+    printf(" Average Response Time: %d\n", 15);
+    printf(" %s Scheduling Completed.\n", "RR");
+
+    printf("\n Task Metrics for %s Scheduling:\n", "FCFS");
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 1, 10, 0);
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 2, 27, 7);
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 3, 40, 25);
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 4, 62, 37);
+    printf(" Average Turnaround Time: %d   ", (10 + 27 + 40 + 62) / 4);
+    printf(" Average Response Time: %d\n", (0 + 7 + 25 + 37) / 4);
+    printf(" %s Scheduling Completed.\n", "FCFS");
+
+
+    printf("\n Task Metrics for %s Scheduling:\n", "Lottery");
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 1, 12, 0);
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 2, 30, 10);
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 3, 34, 11);
+    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 4, 49, 14);
+    printf(" Average Turnaround Time: %d   ", (12 + 30 + 34 + 49) / 4);
+    printf(" Average Response Time: %d\n", (0 + 10 + 11 + 14) / 4);
+    printf(" %s Scheduling Completed.", "Lottery");
+
+*/

@@ -48,11 +48,20 @@ void init_physical_memory(uint32_t memLow, uint32_t memHigh){
 
 
 uint32_t physical_memory_alloc_page_frame(){
+    
+    printf("page_frame_min: %u, page_frame_max: %u\n", page_frame_min, page_frame_max);
+    if (page_frame_min > page_frame_max) {
+        uint32_t temp = page_frame_min;
+        page_frame_min = page_frame_max;
+        page_frame_max = temp;
+    }
+    
     uint32_t start = page_frame_min/8 + ((page_frame_min &7)!= 0 ? 1 : 0);
     uint32_t end = page_frame_max/8 - ((page_frame_max &7)!= 0 ? 1 : 0);
     
-    printf("start: %d\n", start);
-    printf("end: %d\n", end);
+    // printf("start: %d\n", start);
+    // printf("end: %d\n", end);
+    
     // for(uint32_t i  = start; i < end; i++){
     //     uint8_t byte = physical_memory_bitmap[i];
     //     if(byte == 0xff) continue;
@@ -72,7 +81,7 @@ uint32_t physical_memory_alloc_page_frame(){
 
     for (uint32_t b = start; b < end; b++){
         uint8_t byte = physical_memory_bitmap[b];
-        // printf("YOOOOOOOOOOO: %d ",byte);
+        printf("YOOOOOOOOOOO: %d \n",byte);
         if (byte == 0xFF){
             continue;
         }
@@ -81,11 +90,15 @@ uint32_t physical_memory_alloc_page_frame(){
             boolean used = byte >> i & 1;
 
             if (!used){
-                byte ^= (-1 ^ byte) & (1 << i);
+                // byte ^= (-1 ^ byte) & (1 << i);
+                byte |= (1 << i);
+                physical_memory_bitmap[b] = byte;
+
                 physical_memory_bitmap[b] = byte;
                 totalAlloc++;
 
-                uint32_t addr = (b*8*i) * 0x1000;
+                // uint32_t addr = (b*8*i) * 0x1000;
+                uint32_t addr = ((b * 8) + i) * 0x1000;
                 return addr;
             }
         }

@@ -3,13 +3,31 @@
 #include "idt.h"
 #include "drivers/screen.h"
 #include "timer.h"
+#include "libs/process.h"
+
+
+
+
 
 uint64_t ticks;
 uint32_t freq = 100;
 
+task_control_block_t* curent_task;
+
 void onIrq0(struct interrupt_register *regs){
     ticks += 1;
     // printf("%d ", ticks);
+
+    if(curent_task){
+        curent_task->cpu_time++;
+    }
+
+    if((uint32_t)ticks % (uint32_t)10 == (uint32_t)0){
+        // switch every 10 ticks
+        schedule();
+    }
+
+
 }
 
 void init_timer(){

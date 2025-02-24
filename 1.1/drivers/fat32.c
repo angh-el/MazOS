@@ -330,7 +330,71 @@ void read_root_directory() {
 // }
 
 
+uint32_t get_file_entry(const char *filename){
+     // Starting sector of the root directory
+    // uint32_t root_cluster = boot_sector.root_cluster;
+    uint32_t root_cluster = current_directory_cluster;
+    uint32_t sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
 
+    uint8_t buffer[512]; // Buffer to hold sector data
+    struct FAT32_DirectoryEntry *file_entry = NULL;
+
+    // Search for the file in the root directory
+    while (root_cluster < 0x0FFFFFF8) { // FAT32 end-of-cluster marker
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading sector %u\n", sector_number);
+            return;
+        }
+
+        // Parse directory entries (16 entries per 512-byte sector, 32 bytes each)
+        for (int i = 0; i < 512; i += 32) {
+            struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+
+            // Check if the entry is valid
+            // printf("entry name: %s", entry->name);
+            if (entry->name[0] == 0x00) {
+                // End of directory
+                // printf("yoooo");
+                return;
+            }
+            if (entry->name[0] == 0xE5) {
+                // Deleted entry, skip
+                continue;
+            }
+            if (entry->attributes & 0x0F) {
+                // Skip long file name entries
+                continue;
+            }
+
+            // Match the filename
+            char entry_name[12] = {0};
+            for (int j = 0; j < 11; j++) {
+                // if (entry->name[j] != ' ') {
+                    entry_name[j] = entry->name[j];
+                // }
+            }
+            // printf("entry name : %s", entry_name);
+            entry_name[11] = '\0';
+
+            if (strncmp(entry_name, filename, 11) == 0) {
+                file_entry = entry; // Found the file
+                // return file_entry;
+                return (file_entry->first_cluster_high << 16) | file_entry->first_cluster_low;
+                break;
+            }
+        }
+
+        if (file_entry != NULL) {
+            break;
+        }
+
+        // Move to the next cluster in the root directory
+        root_cluster = get_next_cluster(root_cluster);
+        sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
+    }
+
+    return NULL;
+}
 
 
 void read_file(const char *filename) {
@@ -408,6 +472,7 @@ void read_file(const char *filename) {
 
     // while (file_size > 0 && file_cluster < 0x0FFFFFF8) {
     while (file_size > 0) {
+    // while (file_cluster < 0x0FFFFFF8){
         // Calculate the sector corresponding to the current cluster
         sector_number = cluster_to_sector(file_cluster) + fat32_start_sector;
 
@@ -543,55 +608,6 @@ void cd(const char *dirname) {
 
     printf("Directory not found: %s\n", dirname);
 }
-
-
-// void cd_up() {
-//     uint32_t sector_number = cluster_to_sector(current_directory_cluster) + fat32_start_sector;
-//     uint8_t buffer[512];
-//     uint32_t directory_cluster = current_directory_cluster;
-
-//     while (directory_cluster < 0x0FFFFFF8) {
-//         if (read_sector(sector_number, buffer) != 0) {
-//             printf("Error reading sector %u\n", sector_number);
-//             return;
-//         }
-
-//         for (int i = 0; i < 512; i += 32) {
-//             struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
-
-//             if (entry->name[0] == 0x00) {
-//                 printf("No parent directory found.\n");
-//                 return; // End of directory, should never happen in valid FAT32
-//             }
-//             if (entry->name[0] == 0xE5) {
-//                 continue; // Deleted entry
-//             }
-//             if (entry->attributes & 0x0F) {
-//                 continue; // Skip long name entries
-//             }
-
-//             // Check for ".." entry
-//             if (strncmp((char *)entry->name, "..         ", 11) == 0) {
-//                 // Extract the cluster of the parent directory
-//                 uint32_t parent_cluster = (entry->first_cluster_high << 16) | entry->first_cluster_low;
-//                 if (parent_cluster == 0) {
-//                     // Root directory special case
-//                     printf("Already at the root directory.\n");
-//                 } else {
-//                     current_directory_cluster = parent_cluster;
-//                     printf("Moved to parent directory.\n");
-//                 }
-//                 return;
-//             }
-//         }
-
-//         // Move to the next cluster in the directory
-//         directory_cluster = get_next_cluster(directory_cluster);
-//         sector_number = cluster_to_sector(directory_cluster) + fat32_start_sector;
-//     }
-
-//     printf("No parent directory found.\n");
-// }
 
 
 void cd_up() {
@@ -788,4 +804,209 @@ int create_entry(const char* name, uint8_t attributes) {
         }
         sector_number = cluster_to_sector(next_cluster) + fat32_start_sector;
     }
+}
+
+
+
+int update_file_size(const char *filename, uint32_t new_size) {
+    uint32_t sector_number = cluster_to_sector(current_directory_cluster) + fat32_start_sector;
+    uint8_t buffer[512];
+    uint32_t directory_cluster = current_directory_cluster;
+
+    while (directory_cluster < 0x0FFFFFF8) {
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading sector %u\n", sector_number);
+            return -1;
+        }
+
+        for (int i = 0; i < 512; i += 32) {
+            struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+
+            if (entry->name[0] == 0x00) {
+                return -1; // End of directory, file not found
+            }
+            if (entry->name[0] == 0xE5) {
+                continue; // Deleted entry
+            }
+            if (entry->attributes & 0x0F) {
+                continue; // Skip long name entries
+            }
+
+            // Match the file name
+            char entry_name[12] = {0};
+            for (int j = 0; j < 11; j++) {
+                entry_name[j] = entry->name[j];
+            }
+            entry_name[11] = '\0';
+
+            if (strncmp(entry_name, filename, 11) == 0) {
+                // Update the file size
+                entry->file_size = new_size;
+
+                // Write back the updated directory entry
+                if (write_sector(sector_number, buffer) != 0) {
+                    printf("Error writing updated directory entry\n");
+                    return -1;
+                }
+
+                printf("Updated file size for %s to %u bytes\n", filename, new_size);
+                return 0;
+            }
+        }
+
+        // Move to the next cluster in the directory
+        directory_cluster = get_next_cluster(directory_cluster);
+        sector_number = cluster_to_sector(directory_cluster) + fat32_start_sector;
+    }
+
+    printf("File not found: %s\n", filename);
+    return -1;
+}
+
+
+
+
+
+int overwrite_file(uint32_t file_start_cluster, const uint8_t *data, uint32_t data_length, const char *filename) {
+    uint32_t current_cluster = file_start_cluster;
+    uint32_t bytes_written = 0;
+
+    
+    while (data_length > 0) {
+        uint32_t sector_number = cluster_to_sector(current_cluster);
+        uint32_t bytes_to_write = (data_length > 512) ? 512 : data_length;
+
+
+        // Write the data to the current cluster
+        if (write_sector(sector_number + fat32_start_sector, data + bytes_written) != 0) {
+            printf("Error writing to sector %u\n", sector_number);
+            return -1; // Error
+        }
+        
+
+        bytes_written += bytes_to_write;
+        data_length -= bytes_to_write;
+
+        // Allocate a new cluster if needed
+        if (data_length > 0) {
+            uint32_t next_cluster = read_fat_entry(current_cluster);
+            if (next_cluster >= 0x0FFFFFF8 || next_cluster == 0x00000000) {
+                // Allocate a new cluster
+                next_cluster = find_free_cluster();
+                if (next_cluster == 0xFFFFFFFF) {
+                    printf("No free clusters available\n");
+                    return -1; // Error
+                } 
+                write_fat_entry(current_cluster, next_cluster);
+                write_fat_entry(next_cluster, 0x0FFFFFF8); // Mark as end-of-chain
+            }
+            current_cluster = next_cluster;
+        }
+    }
+
+    
+    printf("current cluster: %d\n", current_cluster);
+    // Free any remaining clusters in the chain
+    uint32_t next_cluster = read_fat_entry(current_cluster);
+    printf("YOOOO SHUTTUPPP\n");
+    printf("nect cluster %d\n", next_cluster);
+    while (next_cluster < 0x0FFFFFF8) {
+    // while (next_cluster <= 0x0FFFFFFF) {
+        uint32_t temp = next_cluster;
+        printf("%d ", temp);
+        next_cluster = read_fat_entry(next_cluster);
+        write_fat_entry(temp, 0x00000000); // Mark as free
+        
+    }
+    // write_fat_entry(current_cluster, 0x0FFFFFF8); // Mark current cluster as end-of-chain
+
+    
+
+    // Update the file size
+    if (update_file_size(filename, bytes_written) != 0) {
+        printf("Failed to update file size\n");
+        return -1;
+    }
+
+    // return bytes_written;
+
+    return bytes_written;
+}
+
+
+
+
+
+int append_to_file(uint32_t file_start_cluster, const uint8_t *data, uint32_t data_length, uint32_t file_size , const char *filename) {
+    uint32_t current_cluster = file_start_cluster;
+    uint32_t bytes_written = 0;
+
+    // Traverse to the last cluster
+    while (1) {
+        uint32_t next_cluster = read_fat_entry(current_cluster);
+        if (next_cluster >= 0x0FFFFFF8) {
+            break; // End of chain
+        }
+        current_cluster = next_cluster;
+    }
+
+    // Calculate the offset within the last cluster
+    uint32_t offset_in_last_cluster = file_size % 512;
+
+    // Write data to the last cluster first if there's space
+    if (offset_in_last_cluster > 0) {
+        uint32_t sector_number = cluster_to_sector(current_cluster);
+        uint8_t buffer[512];
+
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading last sector of the file\n");
+            return -1; // Error
+        }
+
+        uint32_t bytes_to_write = (512 - offset_in_last_cluster < data_length)
+                                      ? (512 - offset_in_last_cluster)
+                                      : data_length;
+
+        simple_memcpy(buffer + offset_in_last_cluster, data, bytes_to_write);
+
+        if (write_sector(sector_number, buffer) != 0) {
+            printf("Error writing to last sector of the file\n");
+            return -1; // Error
+        }
+
+        bytes_written += bytes_to_write;
+        data_length -= bytes_to_write;
+    }
+
+    // Allocate new clusters for the remaining data
+    while (data_length > 0) {
+        uint32_t next_cluster = find_free_cluster();
+        if (next_cluster == 0xFFFFFFFF) {
+            printf("No free clusters available\n");
+            return -1; // Error
+        }
+        write_fat_entry(current_cluster, next_cluster);
+        write_fat_entry(next_cluster, 0x0FFFFFF8); // Mark as end-of-chain
+
+        current_cluster = next_cluster;
+        uint32_t sector_number = cluster_to_sector(current_cluster);
+        uint32_t bytes_to_write = (data_length > 512) ? 512 : data_length;
+
+        if (write_sector(sector_number, data + bytes_written) != 0) {
+            printf("Error writing to sector %u\n", sector_number);
+            return -1; // Error
+        }
+
+        bytes_written += bytes_to_write;
+        data_length -= bytes_to_write;
+    }
+
+    uint32_t new_file_size = file_size + data_length;
+    if (update_file_size(filename, new_file_size) != 0) {
+        printf("Failed to update file size\n");
+        return -1;
+    }
+
+
+    return bytes_written;
 }
