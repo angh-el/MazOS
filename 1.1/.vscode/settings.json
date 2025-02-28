@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "process.h": "c",
+        "graphics.h": "c"
+    }
+}

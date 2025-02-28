@@ -11,6 +11,7 @@ typedef enum{
     MODE_DEFUALT,       // 0
     MODE_CALCULATOR,    // 1
     MODE_SNAKE,         // 2
+    MODE_PAINT,
 }Mode;
 
 

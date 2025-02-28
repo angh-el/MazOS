@@ -12,9 +12,12 @@
 
 #include "programs/calculator.h"
 #include "programs/snake.h"
+#include "programs/paint.h"
 
 #include "drivers/fat32.h"
 #include "drivers/audio.h"
+#include "drivers/graphics.h"
+#include "drivers/mouse.h"
 
 
 #include "timer.h"
@@ -61,22 +64,38 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
     // calculator();
     // start_snake_game();
 
- 
-
-    // if (fat32_mount(0) != 0) {
-    //     printf("FAT32 mount failed!\n");
-    //     // return -1;
-    // }
-
-    // ls();
 
 
-    clear_screen();
+    if (fat32_mount(0) != 0) {
+        printf("FAT32 mount failed!\n");
+        // return -1;
+    }
 
+    ls();
 
-    
+    cd("IMAGES     ");
+    ls();
 
+    // init_mouse();
 
+    paint();
+
+    // set_video_mode();  
+    // draw_png_from_txt("DOG     TXT");
+    // sleep();
+    // // clear_screen_grpahics(0);
+    // draw_png_from_txt("CAT     TXT");
+    // sleep();
+    // // clear_screen_grpahics(0);
+    // draw_png_from_txt("TREE    TXT");
+    // sleep();
+    // // clear_screen_grpahics(0);
+    // draw_png_from_txt("TRAIN   TXT");
+    // sleep();
+    // clear_screen_grpahics(0);
+    // reset_video_mode();
+    // clear_screen();
+    // printf("hi\n");
 
     // draw_quarters();
     // while(1){
@@ -88,17 +107,6 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
     //     // sleep();
     //     // sleep();
     // }
-
-    // // Initialize multitasking (allocate the first task, etc.)
-    // initialise_multitasking();
-
-    // // Run the multitasking test
-    // test_multitasking();  
-
-    // printf("Beep test: 440Hz for 500ms\n");
-    // speaker_beep(440, 500);  // 440Hz for 500ms  
-
-   
 
 
     for(;;);

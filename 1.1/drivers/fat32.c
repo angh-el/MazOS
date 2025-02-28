@@ -210,128 +210,18 @@ void read_root_directory() {
 }
 
 
-
-
-// // Function to read and print the contents of a file
-// void read_file(const char *filename) {
-    
-//     // Calculate the starting sector of the root directory
-//     uint32_t root_cluster = boot_sector.root_cluster;
-//     uint32_t sector_number = cluster_to_sector(root_cluster) + fat32_start_sector; // Adjust for GRUB-loaded offset
-
-//     uint8_t buffer[512]; // Buffer to hold sector data
-//     struct FAT32_DirectoryEntry *file_entry = NULL;
-
-//     // Search for the file in the root directory
-//     while (root_cluster < 0x0FFFFFF8) { // FAT32 end-of-cluster marker is 0x0FFFFFF8 or higher
-        
-//         // Read the sector corresponding to the current cluster
-//         if (read_sector(sector_number, buffer) != 0) {
-//             printf("Error reading sector %u\n", sector_number);
-//             return;
-//         }
-
-        
-
-//         // Parse directory entries (16 entries per 512-byte sector, 32 bytes each)
-//         for (int i = 0; i < 512; i += 32) {
-//             struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
-//             // printf("Reading File ...\n");
-//             // Check if the entry is valid
-//             if (entry->name[0] == 0x00) {
-//                 // End of directory
-//                 return;
-//                 // continue;
-//             }
-//             if (entry->name[0] == 0xE5) {
-//                 // Deleted entry, skip it
-//                 continue;
-//             }
-//             if (entry->attributes & 0x0F) {
-//                 // Skip long file name entries
-//                 continue;
-//             }
-
-//             // Check if the entry matches the filename
-//             char entry_name[12] = {0}; // To hold the formatted filename
-//             for (int j = 0; j < 11; j++) {
-//                 if (entry->name[j] != ' ') {
-//                     entry_name[j] = entry->name[j];
-//                 }
-//             }
-//             entry_name[11] = '\0'; // Null-terminate the string
-
-//             if (strncmp(entry_name, filename, 11) == 0) {
-//                 file_entry = entry; // Found the file
-//                 break;
-//             }
-//         }
-
-//         if (file_entry != NULL) {
-//             // printf("NULL FILE ENTRY APPARENTLY WTF\n");
-//             break; // Exit the loop if the file is found
-//         }
-
-//         // Move to the next cluster in the FAT
-//         root_cluster = get_next_cluster(root_cluster);
-//         // sector_number = cluster_to_sector(root_cluster) + fat32_start_sector; // Adjust for GRUB-loaded offset
-//         sector_number = cluster_to_sector(root_cluster) ;
-//     }
-//     // printf("Reading File ...\n");
-
-//     if (file_entry == NULL) {
-//         printf("File not found: %s\n", filename);
-//         return;
-//     }
-
-//     // Read the file's contents
-//     uint32_t file_cluster = (file_entry->first_cluster_high << 16) | file_entry->first_cluster_low;
-//     uint32_t file_size = file_entry->file_size;
-
-//     printf("Reading file: %s (Size: %u bytes)\n", filename, file_size);
-//     printf("First Cluster High: %x\n", file_entry->first_cluster_high);
-//     printf("First Cluster Low: %x\n", file_entry->first_cluster_low);
-//     printf("Cluster: %x\n", file_cluster);
-
-//     while (file_size > 0 && file_cluster < 0x0FFFFFF8) {
-        
-
-//         // Calculate the sector corresponding to the current cluster
-//         sector_number = cluster_to_sector(file_cluster) + fat32_start_sector;
-        
-//         // Read the cluster's data
-//         for (int i = 0; i < boot_sector.sectors_per_cluster; i++) {
-//             printf("Reading sector: %u\n", sector_number + i);  // Debugging output
-//             if (read_sector(sector_number + i, buffer) != 0) {
-//                 printf("yoo ");
-//                 printf("Error reading sector %u\n", sector_number + i);
-//                 return;
-//             }
-            
-//             // Calculate the number of bytes to print from the current sector
-//             uint32_t bytes_to_print = (file_size > 512) ? 512 : file_size;
-
-//             // Print the sector's contents
-//             for (uint32_t j = 0; j < bytes_to_print; j++) {
-//                 // printf("i");
-//                 printf("%c", buffer[j]);
-//             }
-
-//             // Decrease the remaining file size
-//             file_size -= bytes_to_print;
-//         }
-
-        
-//         // Move to the next cluster
-//         file_cluster = get_next_cluster(file_cluster);
-//     }
-
-//     printf("\nFile read completed.\n");
-// }
+int convert_to_int(int num_array[], int size) {
+    int result = 0;
+    for (int i = 0; i < size; i++) {
+        if (num_array[i] == -1) break;  // Stop if we hit an empty slot
+        result = result * 10 + num_array[i];  // Convert digit array to int
+    }
+    return result;
+}
 
 
 uint32_t get_file_entry(const char *filename){
-     // Starting sector of the root directory
+    // Starting sector of the root directory
     // uint32_t root_cluster = boot_sector.root_cluster;
     uint32_t root_cluster = current_directory_cluster;
     uint32_t sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
@@ -456,6 +346,8 @@ void read_file(const char *filename) {
         // Move to the next cluster in the root directory
         root_cluster = get_next_cluster(root_cluster);
         sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
+
+        
     }
 
     if (file_entry == NULL) {
@@ -483,10 +375,48 @@ void read_file(const char *filename) {
             }
 
             uint32_t bytes_to_print = (file_size > 512) ? 512 : file_size;
-
+            
+            int vals[5] = {-1, -1, -1, -1, -1};  // Stores final x, y, r, g, b values
+            int num_array[5] = {-1, -1, -1, -1, -1};  // Temporarily holds digits of a number
+            int num_idx = 0;  // Tracks position in num_array
+            int val_idx = 0;  // Tracks position in vals[]
             // Print the sector's contents
             for (uint32_t j = 0; j < bytes_to_print; j++) {
-                printf("%c", buffer[j]);
+                // if(buffer[j] == '{' || buffer[j] == '}' || buffer[j] == ','){
+                //     continue;
+                // }
+                // printf("%c", buffer[j]);
+                // sleep();
+                // sleep();
+
+                char c = buffer[j];
+
+                if (c >= '0' && c <= '9') {
+                    if (num_idx < 5) {
+                        num_array[num_idx++] = c - '0';  // Convert char to int and store
+                    }
+                } 
+                else if (c == ',' || c == '}') {
+                    if (num_idx > 0) {
+                        vals[val_idx++] = convert_to_int(num_array, num_idx);
+                        // Reset num_array for the next number
+                        num_idx = 0;
+                        for (int i = 0; i < 5; i++) num_array[i] = -1;
+                    }
+                }
+
+                if (c == '}') {
+                    // Print extracted values
+                    printf("Extracted values: x=%d, y=%d, r=%d, g=%d, b=%d\n", 
+                        vals[0], vals[1], vals[2], vals[3], vals[4]);
+                    
+                    sleep();
+                    sleep();
+                    // Reset vals[] for the next pixel entry
+                    for (int i = 0; i < 5; i++) vals[i] = -1;
+                    val_idx = 0;
+                }
+                
             }
 
             file_size -= bytes_to_print;
@@ -502,11 +432,127 @@ void read_file(const char *filename) {
         if (file_cluster >= 0x0FFFFFF8) {
             break; // End of file reached
         }
+        // sleep();
+        // sleep();
     }
 
     printf("\nFile read completed.\n");
 }
 
+void draw_png_from_txt(const char *filename) {
+    uint32_t root_cluster = current_directory_cluster;
+    uint32_t sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
+    uint8_t buffer[512];
+    struct FAT32_DirectoryEntry *file_entry = NULL;
+
+    // Locate the file
+    while (root_cluster < 0x0FFFFFF8) {
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading sector %u\n", sector_number);
+            return;
+        }
+        for (int i = 0; i < 512; i += 32) {
+            struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+            if (entry->name[0] == 0x00) return;
+            if (entry->name[0] == 0xE5 || (entry->attributes & 0x0F)) continue;
+            char entry_name[12] = {0};
+            for (int j = 0; j < 11; j++) entry_name[j] = entry->name[j];
+            entry_name[11] = '\0';
+            if (strncmp(entry_name, filename, 11) == 0) {
+                file_entry = entry;
+                break;
+            }
+        }
+        if (file_entry) break;
+        root_cluster = get_next_cluster(root_cluster);
+        sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
+    }
+    if (!file_entry) {
+        printf("File not found: %s\n", filename);
+        return;
+    }
+
+    uint32_t file_cluster = (file_entry->first_cluster_high << 16) | file_entry->first_cluster_low;
+    uint32_t file_size = file_entry->file_size;
+    uint32_t bytes_read = 0;
+
+        while (file_size > 0) {
+    // while (file_cluster < 0x0FFFFFF8){
+        // Calculate the sector corresponding to the current cluster
+        sector_number = cluster_to_sector(file_cluster) + fat32_start_sector;
+
+        for (int i = 0; i < boot_sector.sectors_per_cluster; i++) {
+            if (read_sector(sector_number + i, buffer) != 0) {
+                printf("Error reading sector %u\n", sector_number + i);
+                return;
+            }
+
+            uint32_t bytes_to_print = (file_size > 512) ? 512 : file_size;
+            
+            int vals[5] = {-1, -1, -1, -1, -1};  // Stores final x, y, r, g, b values
+            int num_array[5] = {-1, -1, -1, -1, -1};  // Temporarily holds digits of a number
+            int num_idx = 0;  // Tracks position in num_array
+            int val_idx = 0;  // Tracks position in vals[]
+            // Print the sector's contents
+            for (uint32_t j = 0; j < bytes_to_print; j++) {
+                // if(buffer[j] == '{' || buffer[j] == '}' || buffer[j] == ','){
+                //     continue;
+                // }
+                // printf("%c", buffer[j]);
+                // sleep();
+                // sleep();
+
+                char c = buffer[j];
+
+                if (c >= '0' && c <= '9') {
+                    if (num_idx < 5) {
+                        num_array[num_idx++] = c - '0';  // Convert char to int and store
+                    }
+                } 
+                else if (c == ',' || c == '}') {
+                    if (num_idx > 0) {
+                        vals[val_idx++] = convert_to_int(num_array, num_idx);
+                        // Reset num_array for the next number
+                        num_idx = 0;
+                        for (int i = 0; i < 5; i++) num_array[i] = -1;
+                    }
+                }
+
+                if (c == '}') {
+                    // Print extracted values
+                    // printf("Extracted values: x=%d, y=%d, r=%d, g=%d, b=%d\n", 
+                    //     vals[0], vals[1], vals[2], vals[3], vals[4]);
+                    
+                    // sleep();
+                    // sleep();
+
+                    draw_pixel(vals[0], vals[1], vals[2], vals[3], vals[4]);
+                    // Reset vals[] for the next pixel entry
+                    for (int i = 0; i < 5; i++) vals[i] = -1;
+                    val_idx = 0;
+                }
+                
+            }
+
+            file_size -= bytes_to_print;
+            // printf(" file size: %d\n", file_size);
+            if (file_size == 0) {
+                break; // File completely read
+            }
+        }
+
+        // Move to the next cluster in the FAT
+        file_cluster = get_next_cluster(file_cluster);
+        // printf("cluster : %d\n", file_cluster);
+        if (file_cluster >= 0x0FFFFFF8) {
+            break; // End of file reached
+        }
+        // sleep();
+        // sleep();
+    }
+
+
+}
 
 
 

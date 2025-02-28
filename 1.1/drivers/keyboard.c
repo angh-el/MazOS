@@ -112,6 +112,9 @@ void handle_keyboard(struct interrupt_register* regs){
                 if(currentMode == MODE_SNAKE){
                     update_direction(uppercase[keyCode]);
                 }
+                if(currentMode == MODE_PAINT){
+                    change_colour(uppercase[keyCode]);
+                }
 
             }
             else{
@@ -123,6 +126,9 @@ void handle_keyboard(struct interrupt_register* regs){
                 }
                 if(currentMode == MODE_SNAKE){
                     update_direction(lowercase[keyCode]);
+                }
+                if(currentMode == MODE_PAINT){
+                    change_colour(lowercase[keyCode]);
                 }
             } 
         }
