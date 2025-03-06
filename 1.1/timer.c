@@ -5,6 +5,8 @@
 #include "timer.h"
 #include "libs/process.h"
 
+// #include "programs/snake.h"
+
 
 
 
@@ -18,14 +20,24 @@ void onIrq0(struct interrupt_register *regs){
     ticks += 1;
     // printf("%d ", ticks);
 
-    if(curent_task){
-        curent_task->cpu_time++;
-    }
+    // if(curent_task){
+    //     curent_task->cpu_time++;
+    // }
 
-    if((uint32_t)ticks % (uint32_t)10 == (uint32_t)0){
-        // switch every 10 ticks
-        schedule();
-    }
+    // if((uint32_t)ticks % (uint32_t)10 == (uint32_t)0){
+    //     // switch every 10 ticks
+    //     schedule();
+    // }
+
+    // if (!game_over) {
+    // if (!0) {
+    //     move_snake();
+    //     draw_game();
+    // } else {
+    //     end_snake_game();
+    //     // stop_timer(snake_timer_callback);  // Stop the timer when game ends
+    //     kill_timer();
+    // }
 
 
 }

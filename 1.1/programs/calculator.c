@@ -21,7 +21,7 @@ int calculator(){
 void append_to_buffer(char c) {
 
     if(c == 'q'){
-        setCurrentMode(MODE_DEFUALT);
+        setCurrentMode(MODE_CLI);
         printf("Quitting Calculator ...\n");
         return;
     }

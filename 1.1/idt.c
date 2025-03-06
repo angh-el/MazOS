@@ -164,14 +164,13 @@ void handle_irq(struct interrupt_register *regs){
     // print_irq_routine(regs->int_no -32-14);
 
     if(handler){
-        handler(regs);    
+        handler(regs);
     } 
 
     if(regs->int_no >= 40){
         port_byte_out(0xa0, 0x20);
     } 
     port_byte_out(0x20, 0x20);
-
     
 }
 

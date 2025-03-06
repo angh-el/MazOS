@@ -5,6 +5,7 @@
 #include "../libs/util.h"
 #include "../programs/calculator.h"
 #include "../programs/snake.h"
+#include "../programs/cli.h"
 
 
 typedef enum{
@@ -12,6 +13,7 @@ typedef enum{
     MODE_CALCULATOR,    // 1
     MODE_SNAKE,         // 2
     MODE_PAINT,
+    MODE_CLI
 }Mode;
 
 

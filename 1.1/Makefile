@@ -24,6 +24,7 @@ kernel:
 	gcc -m32 -fno-stack-protector -fno-builtin -c drivers/graphics.c -o graphics.o
 	gcc -m32 -fno-stack-protector -fno-builtin -c drivers/mouse.c -o mouse.o
 	gcc -m32 -fno-stack-protector -fno-builtin -c programs/paint.c -o paint.o
+	gcc -m32 -fno-stack-protector -fno-builtin -c programs/cli.c -o cli.o
 
 
 boot:
@@ -34,7 +35,7 @@ boot:
 
 
 image:
-	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o gdt.o gdt_flush.o util.o idt.o idt_flush.o printf.o keyboard.o timer.o memory_init.o kernel_memory.o process.o process_s.o calculator.o snake.o disk_io.o fat32.o audio.o graphics.o mouse.o paint.o
+	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o screen.o gdt.o gdt_flush.o util.o idt.o idt_flush.o printf.o keyboard.o timer.o memory_init.o kernel_memory.o process.o process_s.o calculator.o snake.o disk_io.o fat32.o audio.o graphics.o mouse.o paint.o cli.o
 	mv kernel os/boot/kernel
 
 	mkdir -p os/files

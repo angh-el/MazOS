@@ -50,7 +50,7 @@ void paint(){
 void exit_paint(){
     set_colour(0x0, 0xf);
     clear_screen();
-    setCurrentMode(MODE_DEFUALT);
+    setCurrentMode(MODE_CLI);
 }
 
 // void set_paint_colour(uint16_t pcol){

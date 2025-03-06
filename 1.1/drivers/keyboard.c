@@ -1,10 +1,11 @@
 #include "keyboard.h"
 #include "../idt.h"
+#include "../programs/snake.h"
 
 boolean shift;
 boolean caps;
 
-Mode currentMode = MODE_DEFUALT;
+static Mode currentMode = MODE_DEFUALT;
 
 
 const uint32_t UNKNOWN = 0xFFFFFFFF;
@@ -64,13 +65,13 @@ UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN
 
 
 void handle_keyboard(struct interrupt_register* regs){
-    // test();
-    
     // what key is being pressed
     char keyCode = port_byte_in(0x60) & 0x7f;
 
     // if key is held or not
     char press = port_byte_in(0x60) & 0x80;
+
+    // printf("%c ", keyCode);
 
     switch (keyCode){
     case 1:
@@ -110,26 +111,48 @@ void handle_keyboard(struct interrupt_register* regs){
                     append_to_buffer(uppercase[keyCode]);
                 }
                 if(currentMode == MODE_SNAKE){
-                    update_direction(uppercase[keyCode]);
+                    update_direction((char)uppercase[keyCode]);
                 }
                 if(currentMode == MODE_PAINT){
                     change_colour(uppercase[keyCode]);
                 }
+                if(currentMode == MODE_CLI){
+                    printf("%c",uppercase[keyCode]);
+                    append_to_command(uppercase[keyCode]);
+                }
 
             }
             else{
-                if(currentMode == MODE_DEFUALT){
-                    printf("%c", lowercase[keyCode]);
+                switch (currentMode) {
+                    case MODE_DEFUALT:
+                        printf("%c", lowercase[keyCode]);
+                        break;
+
+                    case MODE_CALCULATOR:
+                        append_to_buffer(lowercase[keyCode]);
+                        break;
+
+                    case MODE_SNAKE:
+                        update_direction(lowercase[keyCode]);
+                        // printf("SNAKE %c"s, lowercase[keyCode]);
+                        break;
+
+                    case MODE_PAINT:
+                        change_colour(lowercase[keyCode]);
+                        // printf("PAINT %c", lowercase[keyCode]);
+                        break;
+
+                    case MODE_CLI:
+                        printf("%c", lowercase[keyCode]);
+                        append_to_command(lowercase[keyCode]);
+                        break;
+
+                    default:
+                        // printf("OTHER %c", lowercase[keyCode]);
+                        // Handle unexpected mode if necessary
+                        break;
                 }
-                if(currentMode == MODE_CALCULATOR){
-                    append_to_buffer(lowercase[keyCode]);
-                }
-                if(currentMode == MODE_SNAKE){
-                    update_direction(lowercase[keyCode]);
-                }
-                if(currentMode == MODE_PAINT){
-                    change_colour(lowercase[keyCode]);
-                }
+
             } 
         }
         break;
@@ -142,6 +165,10 @@ void init_keyboard(){
 
 
 void setCurrentMode(Mode mode){
+    // if(mode == MODE_SNAKE){
+    //     // start_snake_game();
+    //     printf("snake");
+    // }
     currentMode = mode;
 }
 

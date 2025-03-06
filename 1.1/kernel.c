@@ -13,6 +13,7 @@
 #include "programs/calculator.h"
 #include "programs/snake.h"
 #include "programs/paint.h"
+#include "programs/cli.h"
 
 #include "drivers/fat32.h"
 #include "drivers/audio.h"
@@ -27,6 +28,12 @@ void print_logo();
 
 void sleep();
 
+void test(){
+    printf("HELLLOOO");
+    sleep();
+    sleep();
+    // start_snake_game();
+}
 
 
 void kmain(uint32_t magic, struct multiboot_info* bootInfo){
@@ -59,11 +66,13 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
 
 
     // print("Allocating memory for kernel\n");
-    init_kmalloc(0x1000);
+    // init_kmalloc(0x1000);
+
+    init_kmalloc(0x100000);
     
     // calculator();
+    // test();
     // start_snake_game();
-
 
 
     if (fat32_mount(0) != 0) {
@@ -78,7 +87,15 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
 
     // init_mouse();
 
-    paint();
+    // paint();
+    // start_snake_game();
+
+    init_cli();
+
+    // sleep();
+
+    // sleep();
+    // start_snake_game();
 
     // set_video_mode();  
     // draw_png_from_txt("DOG     TXT");
