@@ -51,8 +51,18 @@ int read_sector(uint32_t sector_number, uint8_t *buffer) {
     port_byte_out(ATA_PRIMARY_IO_BASE + 7, 0x20); // read command
 
     // wait for data to be ready
-    while (!(port_byte_in(ATA_PRIMARY_IO_BASE + 7) & 0x08));
+    // printf("heyy");
 
+    while (!(port_byte_in(ATA_PRIMARY_IO_BASE + 7) & 0x08));
+    // int timeout_counter = 0;
+    //     while (!(port_byte_in(ATA_PRIMARY_IO_BASE + 7) & 0x08)) { // Check DRQ (Data Request) flag
+    //         if (++timeout_counter > 100000000) {
+    //             disk_initialize();
+    //             read_sector(sector_number, buffer);
+    //         }
+    //     }
+    
+    // printf("heyy2");
     // read the sector data
     for (int i = 0; i < ATA_SECTOR_SIZE / 2; i++) {
         ((uint16_t *)buffer)[i] = port_word_in(ATA_PRIMARY_IO_BASE);

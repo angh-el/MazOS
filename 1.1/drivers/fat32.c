@@ -10,24 +10,6 @@ int fat32_start_sector;
 uint32_t current_directory_cluster;
 uint32_t root_directory_cluster;
 
-// uint32_t get_next_cluster(uint32_t current_cluster) {
-//     // uint32_t fat_offset =  current_cluster * 4 + 22712;  // 4 bytes per FAT entry
-//     uint32_t fat_offset =  current_cluster * 4 + 0;
-//     uint32_t fat_sector = 0 + boot_sector.reserved_sectors + (fat_offset / boot_sector.bytes_per_sector);
-//     uint32_t fat_entry_offset = fat_offset % boot_sector.bytes_per_sector;
-
-//     uint8_t buffer[boot_sector.bytes_per_sector];
-//     read_sector(fat_sector, buffer);
-
-//     for (int i = 0; i < 512; i++){
-//         printf("%c", buffer[i]);
-//     }
-    
-//     // Return the cluster number, masking out the upper bits
-//     return *(uint32_t *)&buffer[fat_entry_offset] & 0x0FFFFFFF;
-// }
-
-
 
 uint32_t get_next_cluster(uint32_t current_cluster) {
     // Calculate the offset in the FAT for the current cluster
@@ -287,6 +269,78 @@ uint32_t get_file_entry(const char *filename){
 }
 
 
+
+void delete_entry(const char *filename) {
+    uint32_t root_cluster = current_directory_cluster;
+    uint32_t sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
+
+    uint8_t buffer[512];
+    struct FAT32_DirectoryEntry *file_entry = NULL;
+    int entry_offset = -1;
+
+    while (root_cluster < 0x0FFFFFF8) {
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading sector %u\n", sector_number);
+            return;
+        }
+
+        for (int i = 0; i < 512; i += 32) {
+            struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+
+            if (entry->name[0] == 0x00) {
+                return;
+            }
+            if (entry->name[0] == 0xE5) {
+                continue;
+            }
+            if (entry->attributes & 0x0F) {
+                continue;
+            }
+
+            char entry_name[12] = {0};
+            for (int j = 0; j < 11; j++) {
+                entry_name[j] = entry->name[j];
+            }
+            entry_name[11] = '\0';
+
+            if (strncmp(entry_name, filename, 11) == 0) {
+                file_entry = entry;
+                entry_offset = i;
+                break;
+            }
+        }
+
+        if (file_entry != NULL) {
+            break;
+        }
+
+        root_cluster = get_next_cluster(root_cluster);
+        sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
+    }
+
+    if (file_entry == NULL) {
+        printf("File not found: %s\n", filename);
+        return;
+    }
+
+    file_entry->name[0] = 0xE5;
+    write_sector(sector_number, buffer);
+
+    uint32_t file_cluster = (file_entry->first_cluster_high << 16) | file_entry->first_cluster_low;
+    uint32_t next_cluster;
+
+    // while (file_cluster < 0x0FFFFFF8) {
+    //     next_cluster = get_next_cluster(file_cluster);
+        // set_fat_entry(file_cluster, 0x00000000);
+    //     file_cluster = next_cluster;
+    // }
+
+    // printf("File deleted successfully: %s\n", filename);
+}
+
+
+
+
 void read_file(const char *filename) {
     // Starting sector of the root directory
     // uint32_t root_cluster = boot_sector.root_cluster;
@@ -359,8 +413,8 @@ void read_file(const char *filename) {
     uint32_t file_cluster = (file_entry->first_cluster_high << 16) | file_entry->first_cluster_low;
     uint32_t file_size = file_entry->file_size;
     
-    printf("Reading file: %s (Size: %u bytes)\n", filename, file_size);
-    printf("Starting Cluster: %x\n", file_cluster);
+    // printf("Reading file: %s (Size: %u bytes)\n", filename, file_size);
+    // printf("Starting Cluster: %x\n", file_cluster);
 
     // while (file_size > 0 && file_cluster < 0x0FFFFFF8) {
     while (file_size > 0) {
@@ -376,47 +430,10 @@ void read_file(const char *filename) {
 
             uint32_t bytes_to_print = (file_size > 512) ? 512 : file_size;
             
-            int vals[5] = {-1, -1, -1, -1, -1};  // Stores final x, y, r, g, b values
-            int num_array[5] = {-1, -1, -1, -1, -1};  // Temporarily holds digits of a number
-            int num_idx = 0;  // Tracks position in num_array
-            int val_idx = 0;  // Tracks position in vals[]
+            
             // Print the sector's contents
             for (uint32_t j = 0; j < bytes_to_print; j++) {
-                // if(buffer[j] == '{' || buffer[j] == '}' || buffer[j] == ','){
-                //     continue;
-                // }
-                // printf("%c", buffer[j]);
-                // sleep();
-                // sleep();
-
-                char c = buffer[j];
-
-                if (c >= '0' && c <= '9') {
-                    if (num_idx < 5) {
-                        num_array[num_idx++] = c - '0';  // Convert char to int and store
-                    }
-                } 
-                else if (c == ',' || c == '}') {
-                    if (num_idx > 0) {
-                        vals[val_idx++] = convert_to_int(num_array, num_idx);
-                        // Reset num_array for the next number
-                        num_idx = 0;
-                        for (int i = 0; i < 5; i++) num_array[i] = -1;
-                    }
-                }
-
-                if (c == '}') {
-                    // Print extracted values
-                    printf("Extracted values: x=%d, y=%d, r=%d, g=%d, b=%d\n", 
-                        vals[0], vals[1], vals[2], vals[3], vals[4]);
-                    
-                    sleep();
-                    sleep();
-                    // Reset vals[] for the next pixel entry
-                    for (int i = 0; i < 5; i++) vals[i] = -1;
-                    val_idx = 0;
-                }
-                
+                printf("%c", buffer[j]);
             }
 
             file_size -= bytes_to_print;
@@ -597,6 +614,7 @@ void ls() {
                 printf(" [FILE]");
             }
             printf(" Cluster number: %d", (entry->first_cluster_high << 16) | entry->first_cluster_low);
+            printf(" ATTRIBUTES: %d", entry->attributes);
             printf("\n");
         }
 
@@ -652,7 +670,7 @@ void cd(const char *dirname) {
         sector_number = cluster_to_sector(directory_cluster) + fat32_start_sector;
     }
 
-    printf("Directory not found: %s\n", dirname);
+    printf("Directory not found: %d\n", sizeof(dirname));
 }
 
 
@@ -859,12 +877,16 @@ int update_file_size(const char *filename, uint32_t new_size) {
     uint8_t buffer[512];
     uint32_t directory_cluster = current_directory_cluster;
 
-    while (directory_cluster < 0x0FFFFFF8) {
+    printf(" yo1 + %d", directory_cluster);
+
+    // while (directory_cluster < 0x0FFFFFF8) {
+    while (1) {
         if (read_sector(sector_number, buffer) != 0) {
             printf("Error reading sector %u\n", sector_number);
             return -1;
         }
 
+        printf("yo2");
         for (int i = 0; i < 512; i += 32) {
             struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
 
@@ -888,14 +910,15 @@ int update_file_size(const char *filename, uint32_t new_size) {
             if (strncmp(entry_name, filename, 11) == 0) {
                 // Update the file size
                 entry->file_size = new_size;
-
+                printf("yo3");
                 // Write back the updated directory entry
                 if (write_sector(sector_number, buffer) != 0) {
                     printf("Error writing updated directory entry\n");
                     return -1;
                 }
 
-                printf("Updated file size for %s to %u bytes\n", filename, new_size);
+                printf("yo4");
+                // printf("Updated file size for %s to %u bytes\n", filename, new_size);
                 return 0;
             }
         }
@@ -913,10 +936,85 @@ int update_file_size(const char *filename, uint32_t new_size) {
 
 
 
-int overwrite_file(uint32_t file_start_cluster, const uint8_t *data, uint32_t data_length, const char *filename) {
-    uint32_t current_cluster = file_start_cluster;
+// int overwrite_file(uint32_t file_start_cluster, const uint8_t *data, uint32_t data_length, const char *filename) {
+int overwrite_file(const uint8_t *data, uint32_t data_length, const char *filename) {
+    
+    ////
+    uint32_t root_cluster = current_directory_cluster;
+    uint32_t sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
+
+    uint8_t buffer[512]; // Buffer to hold sector data
+    struct FAT32_DirectoryEntry *file_entry = NULL;
+
+    // Search for the file in the root directory
+    while (root_cluster < 0x0FFFFFF8) { // FAT32 end-of-cluster marker
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading sector %u\n", sector_number);
+            return;
+        }
+
+        // Parse directory entries (16 entries per 512-byte sector, 32 bytes each)
+        for (int i = 0; i < 512; i += 32) {
+            struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+
+            // Check if the entry is valid
+            // printf("entry name: %s", entry->name);
+            if (entry->name[0] == 0x00) {
+                // End of directory
+                // printf("yoooo");
+                return;
+            }
+            if (entry->name[0] == 0xE5) {
+                // Deleted entry, skip
+                continue;
+            }
+            if (entry->attributes & 0x0F) {
+                // Skip long file name entries
+                continue;
+            }
+
+            // Match the filename
+            char entry_name[12] = {0};
+            for (int j = 0; j < 11; j++) {
+                // if (entry->name[j] != ' ') {
+                    entry_name[j] = entry->name[j];
+                // }
+            }
+            // printf("entry name : %s", entry_name);
+            entry_name[11] = '\0';
+
+            if (strncmp(entry_name, filename, 11) == 0) {
+                file_entry = entry; // Found the file
+                break;
+            }
+        }
+
+        if (file_entry != NULL) {
+            break;
+        }
+
+        // Move to the next cluster in the root directory
+        root_cluster = get_next_cluster(root_cluster);
+        sector_number = cluster_to_sector(root_cluster) + fat32_start_sector;
+
+        
+    }
+
+    if (file_entry == NULL) {
+        printf("File not found: %s\n", filename);
+        return;
+    }
+
+    // Read the file's contents
+    uint32_t file_cluster = (file_entry->first_cluster_high << 16) | file_entry->first_cluster_low;
+    
+    
+    ////
+    // uint32_t current_cluster = file_start_cluster;
+    uint32_t current_cluster = file_cluster;
     uint32_t bytes_written = 0;
 
+   
     
     while (data_length > 0) {
         uint32_t sector_number = cluster_to_sector(current_cluster);
@@ -932,7 +1030,7 @@ int overwrite_file(uint32_t file_start_cluster, const uint8_t *data, uint32_t da
 
         bytes_written += bytes_to_write;
         data_length -= bytes_to_write;
-
+        
         // Allocate a new cluster if needed
         if (data_length > 0) {
             uint32_t next_cluster = read_fat_entry(current_cluster);
@@ -949,21 +1047,24 @@ int overwrite_file(uint32_t file_start_cluster, const uint8_t *data, uint32_t da
             current_cluster = next_cluster;
         }
     }
-
     
-    printf("current cluster: %d\n", current_cluster);
-    // Free any remaining clusters in the chain
-    uint32_t next_cluster = read_fat_entry(current_cluster);
-    printf("YOOOO SHUTTUPPP\n");
-    printf("nect cluster %d\n", next_cluster);
-    while (next_cluster < 0x0FFFFFF8) {
-    // while (next_cluster <= 0x0FFFFFFF) {
-        uint32_t temp = next_cluster;
-        printf("%d ", temp);
-        next_cluster = read_fat_entry(next_cluster);
-        write_fat_entry(temp, 0x00000000); // Mark as free
+    // printf("yo");
+    
+    // printf("current cluster: %d\n", current_cluster);
+    // // Free any remaining clusters in the chain
+    // uint32_t next_cluster = read_fat_entry(current_cluster);
+    // printf("YOOOO SHUTTUPPP\n");
+    // printf("nect cluster %d\n", next_cluster);
+    // while (next_cluster < 0x0FFFFFF8) {
+    // // while (next_cluster <= 0x0FFFFFFF) {
+    //     uint32_t temp = next_cluster;
+    //     printf("%d ", temp);
+    //     next_cluster = read_fat_entry(next_cluster);
+    //     write_fat_entry(temp, 0x00000000); // Mark as free
         
-    }
+    // }
+
+
     // write_fat_entry(current_cluster, 0x0FFFFFF8); // Mark current cluster as end-of-chain
 
     
@@ -973,6 +1074,7 @@ int overwrite_file(uint32_t file_start_cluster, const uint8_t *data, uint32_t da
         printf("Failed to update file size\n");
         return -1;
     }
+    printf("done");
 
     // return bytes_written;
 

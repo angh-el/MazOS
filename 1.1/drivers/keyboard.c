@@ -120,6 +120,11 @@ void handle_keyboard(struct interrupt_register* regs){
                     printf("%c",uppercase[keyCode]);
                     append_to_command(uppercase[keyCode]);
                 }
+                if(currentMode == MODE_GRAPHICS){
+                    if(uppercase[keyCode] == 'Q'){
+                        reboot();
+                    }
+                }
 
             }
             else{
@@ -145,6 +150,11 @@ void handle_keyboard(struct interrupt_register* regs){
                     case MODE_CLI:
                         printf("%c", lowercase[keyCode]);
                         append_to_command(lowercase[keyCode]);
+                        break;
+                    case MODE_GRAPHICS:
+                        if(lowercase[keyCode] == 'q'){
+                            reboot();
+                        }
                         break;
 
                     default:

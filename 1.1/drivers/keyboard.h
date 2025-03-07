@@ -13,7 +13,8 @@ typedef enum{
     MODE_CALCULATOR,    // 1
     MODE_SNAKE,         // 2
     MODE_PAINT,
-    MODE_CLI
+    MODE_CLI,
+    MODE_GRAPHICS
 }Mode;
 
 

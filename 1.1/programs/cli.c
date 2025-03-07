@@ -3,6 +3,8 @@
 #include "../libs/printf.h"
 #include "../libs/stdint.h"
 
+#include "../drivers/fat32.h"
+
 
 
 
@@ -73,7 +75,10 @@ void parse_command() {
     }
     command_index = 0;
 
-    
+    if(string_compare(funct, "clear")) {
+        clear_screen();  
+        return;
+    } 
     if(string_compare(funct, "paint")) {
         paint();  
     } 
@@ -81,15 +86,110 @@ void parse_command() {
         calculator();
     }
     if(string_compare(funct, "snake")) {
-        
-
         start_snake_game();
-        // return;
-        // test();
-        
-    
-    
     } 
+
+    // file operations
+    if(string_compare(funct, "cd")) {
+        // printf("%s ", arg1);
+        if(string_compare(arg1, "..")){
+            cd_up();
+            return;
+        }
+        else{
+            char dirname[11] = {' '};
+            for(int i =0; i<11; i++){
+                if(arg1[i]!= 0){
+                    dirname[i] = arg1[i];
+                }
+                else{
+                    dirname[i] = ' ';
+                }
+            }
+            cd(dirname);
+        }
+        return;
+    }
+    if(string_compare(funct, "ls")) {
+        ls();
+        return;
+    }
+    if(string_compare(funct, "cat")) {
+        char filename[11] = {' ',' ',' ',' ',' ',' ',' ',' ','T','X','T'};
+        for(int i =0; i<11; i++){
+            if(arg1[i]!= 0){
+                filename[i] = arg1[i];
+            }
+        }
+        read_file(filename);
+        return;
+    }
+    if(string_compare(funct, "touch")){
+        char filename[11] = {' ',' ',' ',' ',' ',' ',' ',' ','T','X','T'};
+        for(int i =0; i<11; i++){
+            if(arg1[i]!= 0){
+                filename[i] = arg1[i];
+            }
+        }
+        create_entry(filename, 0x20);
+        return;
+        // create_entry(const char* name, uint8_t attributes)
+    }
+    if(string_compare(funct, "mkdir")){
+        char filename[11] = {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+        for(int i =0; i<11; i++){
+            if(arg1[i]!= 0){
+                filename[i] = arg1[i];
+            }
+        }
+        create_entry(filename, 0x10);
+        return;
+    }
+    if(string_compare(funct, "rmdir")){
+        char filename[11] = {' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '};
+        for(int i =0; i<11; i++){
+            if(arg1[i]!= 0){
+                filename[i] = arg1[i];
+            }
+        }
+        delete_entry(filename);
+        return;
+    }
+    if(string_compare(funct, "echo")){
+        char filename[11] = {' ',' ',' ',' ',' ',' ',' ',' ','T','X','T'};
+        for(int i =0; i<11; i++){
+            if(arg1[i]!= 0){
+                filename[i] = arg1[i];
+            }
+        }
+        overwrite_file(arg2, sizeof(arg2), filename);
+        
+        return;
+    }
+    if(string_compare(funct, "rm")){
+        char filename[11] = {' ',' ',' ',' ',' ',' ',' ',' ','T','X','T'};
+        for(int i =0; i<11; i++){
+            if(arg1[i]!= 0){
+                filename[i] = arg1[i];
+            }
+        }
+        delete_entry(filename);
+        return;
+    }
+    if(string_compare(funct, "display")){
+        setCurrentMode(5); // 5 for Graphics
+        set_video_mode();
+        clear_screen_grpahics(0);
+        char filename[11] = {' ',' ',' ',' ',' ',' ',' ',' ','T','X','T'};
+        for(int i =0; i<11; i++){
+            if(arg1[i]!= 0){
+                filename[i] = arg1[i];
+            }
+        }
+        draw_png_from_txt(filename);
+        return;
+    }
+
     else {
         printf("Unknown command: %s\n", funct);
     }
