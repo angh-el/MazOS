@@ -67,3 +67,29 @@ int getTicks(){
 void setFreq(uint32_t frequency){
     freq = frequency;
 }
+
+
+unsigned long start_time = 0;
+
+unsigned long get_current_time() {
+    return ticks;  
+}
+
+void timer_start() {
+    start_time = get_current_time(); 
+}
+
+void timer_end() {
+    unsigned long end_time = get_current_time();  
+    unsigned long elapsed_time = end_time - start_time;
+    print_elapsed_time(elapsed_time);  
+}
+
+void timer_interrupt_handler() {
+}
+
+
+
+void print_elapsed_time(unsigned long elapsed_time) {
+    printf("Elapsed time: %lu\n", elapsed_time);
+}

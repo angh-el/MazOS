@@ -14,52 +14,6 @@ static int8_t mouse_bytes[3];
 
 static char last_char = ' ';  // Stores the last character under the cursor
 
-// Helper function to update mouse position
-// void update_mouse_cursor() {
-//     // Restore previous character at the old position
-//     int old_pos = (mouse_state.y * SCREEN_WIDTH) + mouse_state.x;
-//     VIDMEM[old_pos] = (0x07 << 8) | last_char;  // Restore original text color
-
-//     mouse_state.dx /= 10;
-//     mouse_state.dy /=10;
-
-//     // Apply movement deltas
-//     mouse_state.x += mouse_state.dx;
-//     mouse_state.y -= mouse_state.dy;  // Inverted Y-axis
-
-    
-//     // Ensure cursor stays within screen bounds
-//     if (mouse_state.x < 0) mouse_state.x = 0;
-//     if (mouse_state.x >= SCREEN_WIDTH) mouse_state.x = SCREEN_WIDTH - 1;
-//     if (mouse_state.y < 0) mouse_state.y = 0;
-//     if (mouse_state.y >= SCREEN_HEIGHT) mouse_state.y = SCREEN_HEIGHT - 1;
-
-//     // Get new character at updated position
-//     int new_pos = (mouse_state.y * SCREEN_WIDTH) + mouse_state.x;
-//     last_char = VIDMEM[new_pos] & 0xFF;  // Save character under cursor
-
-//     // printf("x:%d y:%d", mouse_state.x, mouse_state.y);
-//     // printf("dx:%d dy:%d\n", mouse_state.dx, mouse_state.dy);
-
-//     // Get memory address of cell
-//     int offset = (mouse_state.y * SCREEN_WIDTH) + mouse_state.x;
-//     uint16_t* cell = (uint16_t*)(VIDMEM + offset);
-    
-
-//     // Change color on click
-//     if (mouse_state.left) {
-//         *cell = (*cell & 0x00FF) | (0x20 << 8);  // Green
-//         return;
-//     } else if (mouse_state.right) {
-//         *cell = (*cell & 0x00FF) | (0x40 << 8);  // Red
-//         return;
-//     }
-
-//     // Draw grey background cursor
-//     VIDMEM[new_pos] = (0x70 << 8) | ' ';
-// }
-
-
 
 #define VIDEO_MEM ((volatile uint16_t*)0xC00B8000)
 // Stores the last drawn character & color at previous cursor position

@@ -9,7 +9,7 @@ typedef struct {
 } Point;
 
 Point snake[SNAKE_MAX_LENGTH];
-int snake_length = 3;
+int snake_length = 24;
 Point apple;
 Direction current_direction = right;
 int game_over = 0;
@@ -68,7 +68,7 @@ void draw_game() {
 
     // Draw the apple
     print_char('X', apple.x, apple.y, RED_ON_RED);
-    printf("%d", snake[0].x);
+    // printf("%d", snake[0].x);
 
     // Set the cursor to the bottom-right corner to avoid overwriting the game
     set_cursor(get_screen_offset(GAME_WIDTH - 1, GAME_HEIGHT - 1));
@@ -136,9 +136,13 @@ void move_snake() {
 }
 
 void end_snake_game(){
-    printf(" Game Over ... \n");
-    printf("Final Score: %d\n", snake_length - 3);
+    printf("  Game Over ... \n");
+    printf("  Final Score: %d\n", snake_length - 3);
 
+    for(volatile int i = 0; i<1000000000; i++);
+    for(volatile int i = 0; i<1000000000; i++);
+    for(volatile int i = 0; i<1000000000; i++);
+    for(volatile int i = 0; i<1000000000; i++);
     for(volatile int i = 0; i<1000000000; i++);
     set_colour(0x0,0x0);
     clear_screen();

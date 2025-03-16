@@ -92,6 +92,8 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
 
     init_cli();
 
+    // clear_screen();
+    // paint();
     // sleep();
 
     // sleep();
@@ -114,6 +116,7 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
     // clear_screen();
     // printf("hi\n");
 
+    // clear_screen();
     // draw_quarters();
     // while(1){
     //     process_1();

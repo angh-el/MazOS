@@ -90,6 +90,16 @@ void handle_keyboard(struct interrupt_register* regs){
     case 68:
     case 87:
     case 88:
+    //case 96:
+        break;
+    
+    case 72:
+        if(press == 0)
+        append_to_command(UP);
+        break;
+    case 80:
+        if(press == 0)
+        append_to_command(DOWN);
         break;
     
     case 42:
@@ -117,8 +127,11 @@ void handle_keyboard(struct interrupt_register* regs){
                     change_colour(uppercase[keyCode]);
                 }
                 if(currentMode == MODE_CLI){
-                    printf("%c",uppercase[keyCode]);
-                    append_to_command(uppercase[keyCode]);
+                    // if(keyCode != 72 && keyCode != 80){
+                    // if(keyCode != 72 && keyCode != 80 && keyCode!= 96){
+                        printf("%c",uppercase[keyCode]);
+                        append_to_command(uppercase[keyCode]);
+                    // }
                 }
                 if(currentMode == MODE_GRAPHICS){
                     if(uppercase[keyCode] == 'Q'){
@@ -148,8 +161,11 @@ void handle_keyboard(struct interrupt_register* regs){
                         break;
 
                     case MODE_CLI:
-                        printf("%c", lowercase[keyCode]);
-                        append_to_command(lowercase[keyCode]);
+                    //    if(keyCode != 72 && keyCode != 80 && keyCode!= 96){
+                            printf("%c", lowercase[keyCode]);
+                            // printf("%d", keyCode);
+                            append_to_command(lowercase[keyCode]);
+                        // }
                         break;
                     case MODE_GRAPHICS:
                         if(lowercase[keyCode] == 'q'){

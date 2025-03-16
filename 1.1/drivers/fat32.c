@@ -78,7 +78,7 @@ int strncmp(const char *str1, const char *str2, unsigned int n) {
 
 int fat32_mount(uint32_t sector_number) {
     printf("Mounting Filesystem ...\n");
-    for(int sector = 0; sector< get_disk_size(); sector++){
+    for(int sector = 22000; sector< get_disk_size(); sector++){
 
         // Step 1: Read the boot sector into the buffer
         uint8_t buffer[512];
@@ -112,13 +112,16 @@ int fat32_mount(uint32_t sector_number) {
             printf("Root Cluster: %u\n", boot_sector.root_cluster);
             
             printf("\n");
+            // sleep();
+            // sleep();
+            // sleep();
+            // sleep();
             return 0;
         }
 
-
-        // Step 5: Return success (this will allow further operations like reading the root directory)
         // return 0;
     }
+    
     
     
 }
@@ -623,6 +626,215 @@ void ls() {
         sector_number = cluster_to_sector(directory_cluster) + fat32_start_sector;
     }
 }
+
+
+
+// Forward declaration for recursive function
+boolean find_directory_name(uint32_t search_cluster, uint32_t target_cluster, char *name_buffer);
+
+void get_current_directory() {
+    // If we're at the root directory
+    set_colour(0, 2);
+    if (current_directory_cluster == root_directory_cluster) {
+        // printf("Current directory: /\n");
+        printf("[ROOT] ");
+        set_colour(0, 0xf);
+        return;
+    }
+
+    char directory_name[12] = {0}; // Store the directory name
+
+    // Recursively search through the filesystem starting at root
+    if (find_directory_name(root_directory_cluster, current_directory_cluster, directory_name)) {
+        // printf("Current directory: %s\n", directory_name);
+        printf("[%s] ", directory_name);
+    } 
+    else {
+        printf("Current directory: [Cluster: %u]\n", current_directory_cluster);
+    }
+
+    set_colour(0, 0xf);
+}
+
+boolean find_directory_name(uint32_t search_cluster, uint32_t target_cluster, char *name_buffer) {
+    uint32_t sector_number = cluster_to_sector(search_cluster) + fat32_start_sector;
+    uint8_t buffer[512];
+    boolean found = false;
+
+    // Explore this directory cluster by cluster
+    while (search_cluster < 0x0FFFFFF8 && !found) {
+        // Read the sector
+        if (read_sector(sector_number, buffer) != 0) {
+            printf("Error reading sector %u\n", sector_number);
+            return false;
+        }
+
+        // Process each directory entry in this sector
+        for (int i = 0; i < 512; i += 32) {
+            struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+
+            if (entry->name[0] == 0x00) {
+                break; // End of directory entries
+            }
+            if (entry->name[0] == 0xE5) {
+                continue; // Deleted entry
+            }
+            if (entry->attributes & 0x0F) {
+                continue; // Skip long name entries
+            }
+
+            uint32_t entry_cluster = (entry->first_cluster_high << 16) | entry->first_cluster_low;
+
+            // Skip "." and ".." entries
+            if (entry->name[0] == '.' && (entry->name[1] == ' ' || 
+               (entry->name[1] == '.' && entry->name[2] == ' '))) {
+                continue;
+            }
+
+            // Check if this entry is our target directory
+            if (entry_cluster == target_cluster && (entry->attributes & 0x10)) {
+                // Copy the name (trimming spaces)
+                int name_len = 0;
+                for (int j = 0; j < 8; j++) {
+                    if (entry->name[j] != ' ') {
+                        name_buffer[name_len++] = entry->name[j];
+                    }
+                }
+                
+                // Add extension if present and this is not a directory
+                if (!(entry->attributes & 0x10) && entry->name[8] != ' ') {
+                    name_buffer[name_len++] = '.';
+                    for (int j = 8; j < 11; j++) {
+                        if (entry->name[j] != ' ') {
+                            name_buffer[name_len++] = entry->name[j];
+                        }
+                    }
+                }
+                
+                name_buffer[name_len] = '\0';
+                return true;
+            }
+
+            // If this is a directory, search it recursively
+            if ((entry->attributes & 0x10) && entry_cluster != 0) {
+                // Temporarily store the name of this directory
+                char temp_name[12] = {0};
+                int name_len = 0;
+                
+                for (int j = 0; j < 8; j++) {
+                    if (entry->name[j] != ' ') {
+                        temp_name[name_len++] = entry->name[j];
+                    }
+                }
+                temp_name[name_len] = '\0';
+                
+                // Recursively search this directory
+                if (find_directory_name(entry_cluster, target_cluster, name_buffer)) {
+                    return true;
+                }
+            }
+        }
+
+        // Move to the next cluster in this directory
+        search_cluster = get_next_cluster(search_cluster);
+        if (search_cluster < 0x0FFFFFF8) {
+            sector_number = cluster_to_sector(search_cluster) + fat32_start_sector;
+        }
+    }
+
+    return false;
+}
+
+
+
+
+
+
+
+// void get_current_directory() {
+//     // If we're at the root directory
+//     if (current_directory_cluster == root_directory_cluster) {
+//         printf("Current directory: /\n");
+//         return;
+//     }
+
+//     // We'll search through all clusters looking for a directory entry that points to our current cluster
+//     uint32_t parent_cluster = root_directory_cluster; // Start at root
+//     uint32_t sector_number = cluster_to_sector(parent_cluster) + fat32_start_sector;
+//     uint8_t buffer[512];
+//     char directory_name[12] = {0}; // Store the directory name
+//     boolean found = false;
+
+//     // We'll need to search the entire filesystem starting from root
+//     // This is not efficient but works without extra data structures
+//     while (parent_cluster < 0x0FFFFFF8 && !found) {
+//         if (read_sector(sector_number, buffer) != 0) {
+//             printf("Error reading sector %u\n", sector_number);
+//             return;
+//         }
+
+//         for (int i = 0; i < 512; i += 32) {
+//             struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
+
+//             if (entry->name[0] == 0x00) {
+//                 break; // End of directory entries in this sector
+//             }
+//             if (entry->name[0] == 0xE5) {
+//                 continue; // Deleted entry
+//             }
+//             if (entry->attributes & 0x0F) {
+//                 continue; // Skip long name entries
+//             }
+
+//             // If this is a directory, explore it recursively
+//             if (entry->attributes & 0x10) {
+//                 uint32_t entry_cluster = (entry->first_cluster_high << 16) | entry->first_cluster_low;
+                
+//                 // Skip "." and ".." entries to avoid loops
+//                 if (entry->name[0] == '.' && (entry->name[1] == ' ' || 
+//                    (entry->name[1] == '.' && entry->name[2] == ' '))) {
+//                     continue;
+//                 }
+                
+//                 // Check if this entry points to our current directory
+//                 if (entry_cluster == current_directory_cluster) {
+//                     // Copy the name (trimming spaces)
+//                     int name_len = 0;
+//                     for (int j = 0; j < 8; j++) { // First 8 chars are name
+//                         if (entry->name[j] != ' ') {
+//                             directory_name[name_len++] = entry->name[j];
+//                         }
+//                     }
+//                     directory_name[name_len] = '\0';
+//                     found = true;
+//                     break;
+//                 }
+//             }
+//         }
+
+//         // If not found in this sector, move to the next cluster
+//         if (!found) {
+//             parent_cluster = get_next_cluster(parent_cluster);
+//             if (parent_cluster < 0x0FFFFFF8) {
+//                 sector_number = cluster_to_sector(parent_cluster) + fat32_start_sector;
+//             } else {
+//                 // Try subdirectories (this would be a recursive search in a full implementation)
+//                 // This is simplified and not complete - a full implementation would need 
+//                 // to search all directories in the filesystem
+//                 break;
+//             }
+//         }
+//     }
+
+//     if (found) {
+//         printf("Current directory: %s\n", directory_name);
+//     } else {
+//         // If we couldn't find it through search, just print the cluster number
+//         printf("Current directory: [Cluster: %d]\n", current_directory_cluster);
+//     }
+// }
+
+
 
 
 
