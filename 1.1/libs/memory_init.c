@@ -35,8 +35,8 @@ void init_physical_memory(uint32_t memLow, uint32_t memHigh){
     page_frame_min = CEIL_DIV(memLow, 0x1000);
     page_frame_max = memHigh/ 0x1000;
     
-    printf("page_frame_min: %x\n", page_frame_min);
-    printf("page_frame_max: %x\n", page_frame_max);
+    // printf("page_frame_min: %x\n", page_frame_min);
+    // printf("page_frame_max: %x\n", page_frame_max);
 
     totalAlloc = 0;
     memset(physical_memory_bitmap, 0, sizeof(physical_memory_bitmap));
@@ -49,12 +49,12 @@ void init_physical_memory(uint32_t memLow, uint32_t memHigh){
 
 uint32_t physical_memory_alloc_page_frame(){
     
-    printf("page_frame_min: %u, page_frame_max: %u\n", page_frame_min, page_frame_max);
-    if (page_frame_min > page_frame_max) {
-        uint32_t temp = page_frame_min;
-        page_frame_min = page_frame_max;
-        page_frame_max = temp;
-    }
+    // printf("page_frame_min: %u, page_frame_max: %u\n", page_frame_min, page_frame_max);
+    // if (page_frame_min > page_frame_max) {
+    //     uint32_t temp = page_frame_min;
+    //     page_frame_min = page_frame_max;
+    //     page_frame_max = temp;
+    // }
     
     uint32_t start = page_frame_min/8 + ((page_frame_min &7)!= 0 ? 1 : 0);
     uint32_t end = page_frame_max/8 - ((page_frame_max &7)!= 0 ? 1 : 0);
@@ -81,7 +81,7 @@ uint32_t physical_memory_alloc_page_frame(){
 
     for (uint32_t b = start; b < end; b++){
         uint8_t byte = physical_memory_bitmap[b];
-        printf("YOOOOOOOOOOO: %d \n",byte);
+        // printf("YOOOOOOOOOOO: %d \n",byte);
         if (byte == 0xFF){
             continue;
         }
@@ -274,4 +274,51 @@ void physical_memory_free_page_frame(uint32_t phys_addr) {
 
     physical_memory_bitmap[byte_idx] &= ~(1 << bit_idx); // Mark the frame as free
     totalAlloc--;
+}
+
+
+
+
+
+void test_memory_management() {
+    printf("Starting memory management test...\n");
+        
+    //Allocate memory
+    void *ptr1 = kmalloc(4096); // Allocate one page (4KB)
+    if (ptr1 == NULL) {
+        printf("ERROR: Memory allocation failed!\n");
+        return;
+    }
+    printf("Allocated 4KB at %p\n", ptr1);
+    
+    // Verify paging
+    uint32_t addr = (uint32_t) ptr1;
+    uint32_t page_dir_idx = addr >> 22;
+    uint32_t page_table_idx = (addr >> 12) & 0x3FF;
+    uint32_t *page_table = REC_PAGETABLE(page_dir_idx);
+    if (page_table[page_table_idx] & PAGE_FLAG_PRESENT) {
+        printf("Paging confirmed: Virtual address %p is mapped.\n", ptr1);
+    } 
+    else {
+        printf("ERROR: Paging failed!\n");
+    }
+    
+    // Free memory
+    kfree(ptr1);
+    printf("Freed memory at %p\n", ptr1);
+    
+    // Allocate multiple chunks to check fragmentation
+    void *ptr2 = kmalloc(2048);
+    void *ptr3 = kmalloc(4096);
+    if (ptr2 && ptr3) {
+        printf("Allocated 2KB at %p and 4KB at %p\n", ptr2, ptr3);
+    } else {
+        printf("ERROR: Failed to allocate memory chunks!\n");
+    }
+    
+    kfree(ptr2);
+    kfree(ptr3);
+    printf("Freed memory at %p and %p\n", ptr2, ptr3);
+    
+    printf("Memory management test completed.\n");
 }

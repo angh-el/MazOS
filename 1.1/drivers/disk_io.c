@@ -88,54 +88,153 @@ int read_sector(uint32_t sector_number, uint8_t *buffer) {
 
 
 
+// int write_sector(uint32_t sector_number, const uint8_t *buffer) {
+//     // drive and head information
+//     port_byte_out(ATA_PRIMARY_IO_BASE + 6, 0xE0 | ((sector_number >> 24) & 0x0F));
+
+//     // printf("buffer: %s\n", buffer);
+//     // printf("sector_number: %d\n", sector_number);
+//     // printf("\n", sector_number);
+
+//     // printf("\n");
+    
+//     // set_cursor(get_cursor() - 80);
+//     // printf("\b");
+//     // printf("\b");printf("\b");printf("\b");printf("\b");printf("\b");
+//     // sector_number = sector_number + 5;
+//     // sector_number = sector_number - 5;
+//     // sector count (1 sector)
+//     port_byte_out(ATA_PRIMARY_IO_BASE + 2, 1);
+
+//     // Logical Block Address sector number
+//     port_byte_out(ATA_PRIMARY_IO_BASE + 3, sector_number & 0xFF);         // Low byte
+//     port_byte_out(ATA_PRIMARY_IO_BASE + 4, (sector_number >> 8) & 0xFF);  // Mid byte
+//     port_byte_out(ATA_PRIMARY_IO_BASE + 5, (sector_number >> 16) & 0xFF); // High byte
+
+//     // WRITE SECTORS command (0x30)
+//     port_byte_out(ATA_PRIMARY_IO_BASE + 7, 0x30);
+  
+
+//     // uint8_t status = port_byte_in(ATA_PRIMARY_IO_BASE + 7);
+//     // while (!(status & 0x08)) { // check the DRQ (Data Request) flag
+//     //     if (status & 0x01) {   // check the ERR (Error) flag
+//     //         return -1;         // return failure
+//     //     }
+//     //     status = port_byte_in(ATA_PRIMARY_IO_BASE + 7);
+//     //     //printf("status %d \n", status); 
+//     // }
+
+//     // Wait for drive to be ready
+//     uint8_t status;
+//     int timeout = 1000000; // Arbitrary large number to prevent infinite loop
+
+//     while (timeout--) {
+//         status = port_byte_in(ATA_PRIMARY_IO_BASE + 7);
+
+//         if (!(status & 0x80)) { // Wait for BSY flag to clear first
+//             if (status & 0x08) { // DRQ (Data Request) flag is set, we are good
+//                 break;
+//             }
+//             if (status & 0x01) { // ERR (Error) flag is set
+//                 printf("ERROR: Disk write failed at sector %d\n", sector_number);
+//                 return -1;
+//             }
+//         }
+//     }
+//     uint8_t error = port_byte_in(ATA_PRIMARY_IO_BASE + 1);
+//     if (error) {
+//     printf("ATA Error: 0x%X\n", error);
+//         printf("ATA Error: 0x%X\n", error);
+//     }
+
+//     // If we exit the loop due to timeout
+//     if (timeout <= 0) {
+//         printf("ERROR: Timeout while waiting for drive ready at sector %d\n", sector_number);
+//         return -1;
+//     }
+
+
+//     // write the sector data (512 bytes = 256 words)
+//     for (int i = 0; i < ATA_SECTOR_SIZE / 2; i++) {
+//         port_word_out(ATA_PRIMARY_IO_BASE, ((uint16_t *)buffer)[i]); // Write 2 bytes at a time
+//     }
+
+//     // flush the cache
+//     port_byte_out(ATA_PRIMARY_IO_BASE + 7, 0xE7);
+
+//     // set_cursor(get_cursor() - 80);
+//     return 0; 
+// }
+
+
+#define ATA_STATUS_BSY       0x80    // Busy
+#define ATA_STATUS_DRQ       0x08    // Data Request
+#define ATA_STATUS_ERR       0x01    // Error
+
+// Wait for BSY flag to clear
+int ata_wait_bsy() {
+    int timeout = 100000;
+    while (timeout--) {
+        uint8_t status = port_byte_in(ATA_PRIMARY_IO_BASE + 7);
+        if (!(status & ATA_STATUS_BSY)) return 0;  // BSY cleared
+    }
+    return -1;  // Timeout
+}
+
+// Wait for DRQ flag to be set (ready for data transfer)
+int ata_wait_drq() {
+    int timeout = 100000;
+    while (timeout--) {
+        uint8_t status = port_byte_in(ATA_PRIMARY_IO_BASE + 7);
+        if (status & ATA_STATUS_ERR) return -1;  // Error occurred
+        if (status & ATA_STATUS_DRQ) return 0;   // DRQ is set
+    }
+    return -1;  // Timeout
+}
+
 int write_sector(uint32_t sector_number, const uint8_t *buffer) {
-    // drive and head information
+    // Select the drive and enable LBA mode
     port_byte_out(ATA_PRIMARY_IO_BASE + 6, 0xE0 | ((sector_number >> 24) & 0x0F));
 
-    // printf("buffer: %s\n", buffer);
-    // printf("sector_number: %d\n", sector_number);
-    // printf("\n", sector_number);
-
-    printf("\n");
-    
-    // set_cursor(get_cursor() - 80);
-    // printf("\b");
-    // printf("\b");printf("\b");printf("\b");printf("\b");printf("\b");
-    // sector_number = sector_number + 5;
-    // sector_number = sector_number - 5;
-    // sector count (1 sector)
+    // Set the sector count (always 1 sector)
     port_byte_out(ATA_PRIMARY_IO_BASE + 2, 1);
-
-    // Logical Block Address sector number
+    
+    // Set LBA sector number (split into 3 bytes)
     port_byte_out(ATA_PRIMARY_IO_BASE + 3, sector_number & 0xFF);         // Low byte
     port_byte_out(ATA_PRIMARY_IO_BASE + 4, (sector_number >> 8) & 0xFF);  // Mid byte
     port_byte_out(ATA_PRIMARY_IO_BASE + 5, (sector_number >> 16) & 0xFF); // High byte
 
-    // WRITE SECTORS command (0x30)
+    // Send WRITE SECTORS command (0x30)
     port_byte_out(ATA_PRIMARY_IO_BASE + 7, 0x30);
-    // printf("YOOOO\n");
-    // Wait for drive to be ready
-    uint8_t status = port_byte_in(ATA_PRIMARY_IO_BASE + 7);
-    while (!(status & 0x08)) { // check the DRQ (Data Request) flag
-        if (status & 0x01) {   // check the ERR (Error) flag
-            return -1;         // return failure
-        }
-        status = port_byte_in(ATA_PRIMARY_IO_BASE + 7);
+
+    // Wait for drive to be ready (BSY must clear first)
+    if (ata_wait_bsy() < 0) {
+        printf("ERROR: Timeout waiting for BSY to clear\n");
+        return -1;
     }
 
-    // write the sector data (512 bytes = 256 words)
+    // Wait for drive to request data transfer (DRQ must be set)
+    if (ata_wait_drq() < 0) {
+        printf("ERROR: Timeout waiting for DRQ\n");
+        return -1;
+    }
+
+    // Write 512 bytes (256 words) to the sector
     for (int i = 0; i < ATA_SECTOR_SIZE / 2; i++) {
-        port_word_out(ATA_PRIMARY_IO_BASE, ((uint16_t *)buffer)[i]); // Write 2 bytes at a time
+        port_word_out(ATA_PRIMARY_IO_BASE, ((uint16_t *)buffer)[i]);
     }
 
-    // flush the cache
+    // Send CACHE FLUSH command (0xE7) to ensure data is written
     port_byte_out(ATA_PRIMARY_IO_BASE + 7, 0xE7);
 
-    // set_cursor(get_cursor() - 80);
-    return 0; 
+    // Wait for BSY to clear after flush
+    if (ata_wait_bsy() < 0) {
+        printf("ERROR: Timeout after flush\n");
+        return -1;
+    }
+
+    return 0;  // Success
 }
-
-
 
 
 

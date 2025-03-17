@@ -91,6 +91,12 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
     // start_snake_game();
 
     init_cli();
+    // clear_screen();
+
+
+    // test_memory_management();
+
+
 
     // clear_screen();
     // paint();

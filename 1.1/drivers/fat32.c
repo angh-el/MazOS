@@ -1019,7 +1019,7 @@ int create_entry(const char* name, uint8_t attributes) {
         struct FAT32_DirectoryEntry* entry = find_free_directory_entry(buffer);
         
         if (entry != NULL) {
-               
+                  
             // Found a free entry, fill it
             memset(entry->name, ' ', 11);
             for (int i = 0; i < 11 && name[i] != '\0'; i++) {
@@ -1061,11 +1061,11 @@ int create_entry(const char* name, uint8_t attributes) {
                 dotdot->first_cluster_low = current_directory_cluster & 0xFFFF;
                 dotdot->first_cluster_high = (current_directory_cluster >> 16) & 0xFFFF;
                 
-                // printf("cluster: %d, cluster_to_sector: %d\n", cluster, cluster_to_sector(cluster)+ fat32_start_sector);
+                printf("cluster: %d, cluster_to_sector: %d\n", cluster, cluster_to_sector(cluster)+ fat32_start_sector);
                 write_sector(cluster_to_sector(cluster) + fat32_start_sector, dir_buffer);
-                // printf("SHUSHHH");
+                printf("SHUSHHH");
             }
-            
+            // printf("yoo"); 
             write_sector(sector_number, buffer);
             printf("Created %s\n", (attributes & 0x10) ? "directory" : "file");
             return 0;
