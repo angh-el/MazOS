@@ -8,6 +8,8 @@
 
 efi_system_table_t *ST = 0x5000;
 efi_boot_services_t *BS = 0x1000;
+
+
 ssize_t sys_write(int fd, const void *buf, size_t count) {
     if (fd != 1) return -1;  
 
@@ -101,6 +103,43 @@ int sys_close(int fd) {
 }
 
 
+typedef struct {
+    int pid;
+    char *memory;
+    int active;
+} process_t;
+
+#define MAX_PROCESSES 32
+process_t process_table[MAX_PROCESSES] = {0};
+int next_pid = 1;
+
+int sys_fork() {
+    int parent_pid = next_pid - 1;
+
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        if (process_table[i].active == 0) {
+            process_table[i].pid = next_pid++;
+            process_table[i].active = 1;
+
+            process_table[i].memory = process_table[parent_pid].memory;
+
+            return process_table[i].pid;
+        }
+    }
+    return -1;  
+}
+
+int sys_kill(int pid, int sig) {
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        if (process_table[i].pid == pid) {
+            process_table[i].active = 0;
+            return 0;  
+        }
+    }
+    return -1;  
+}
+
+
 
 
 
@@ -156,9 +195,24 @@ int syscall_handler(int syscall_num, ...) {
             va_end(args);
             return sys_execve(path, argv, envp);
         }
+        case SYS_FORK: {
+            va_end(args);
+            return sys_fork();
+        }
+        case SYS_KILL: {
+            int pid = va_arg(args, int);
+            int sig = va_arg(args, int);
+            va_end(args);
+            return sys_kill(pid, sig);
+        }
         default:
             va_end(args);
             return -1;  // Invalid syscall
     }
     return 0;
+}
+
+
+void init_syscalls() {
+    irq_install_handler(128 - 32, syscall_handler);  
 }

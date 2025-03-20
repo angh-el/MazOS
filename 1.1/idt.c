@@ -145,8 +145,6 @@ void *irq_routines[16] = {
 void irq_install_handler (int irq, void (*handler)(struct interrupt_register *r)){
     printf("Installed IRQ %d handler at 0x%x\n", irq, (uint32_t)handler);
     irq_routines[irq] = handler;
-    // printf("irq_routines[0]: 0x%x\n", irq_routines[0]);
-    // printf("irq_routines[1]: 0x%x\n", irq_routines[1]);
 }
 
 void clear_irq_handler(int irq){
@@ -154,14 +152,8 @@ void clear_irq_handler(int irq){
 }
 
 void handle_irq(struct interrupt_register *regs){
-    // printf("handle_irq, interrupt_number: %d \n", registers->int_no-32);
-    
-    // printf("irq_routines[%d]: 0x%x\n", registers->int_no-32, irq_routines[registers->int_no-32]);
-    // printf("irq_routines[1]: 0x%x\n", irq_routines[1]);
     void(*handler)(struct interrupt_register *regs);
     handler = irq_routines[regs->int_no-32]; 
-
-    // print_irq_routine(regs->int_no -32-14);
 
     if(handler){
         handler(regs);
@@ -171,7 +163,6 @@ void handle_irq(struct interrupt_register *regs){
         port_byte_out(0xa0, 0x20);
     } 
     port_byte_out(0x20, 0x20);
-    
 }
 
 void print_irq_routine(int irq){

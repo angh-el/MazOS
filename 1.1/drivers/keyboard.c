@@ -172,6 +172,13 @@ void handle_keyboard(struct interrupt_register* regs){
                             reboot();
                         }
                         break;
+                    case MODE_PROCESSES:
+                        if(lowercase[keyCode] == 'q'){
+                            clear_screen();
+                            get_current_directory();
+                            setCurrentMode(MODE_CLI);
+                        }
+                        break;
 
                     default:
                         // printf("OTHER %c", lowercase[keyCode]);

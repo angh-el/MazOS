@@ -280,6 +280,18 @@ void parse_command() {
         reboot();
         return;
     }
+    if(string_compare(funct, "processes")){
+        // printf("processes\n");
+        // setCurrentMode(6);
+        clear_screen();
+        draw_quarters();
+        for(int i = 0; i < 50; i++){
+            process_1();
+        }
+        set_cursor(get_screen_offset(0,0));
+        clear_screen();
+        return;
+    }
 
     else {
         printf("Unknown command: %s\n", funct);

@@ -20,27 +20,18 @@ uint32_t get_next_cluster(uint32_t current_cluster) {
     uint8_t buffer[boot_sector.bytes_per_sector];
     if (read_sector(fat_sector, buffer) != 0) {
         printf("Error reading FAT sector %u\n", fat_sector);
-        return 0x0FFFFFF8;  // Return EOC (End of Chain) on error
+        return 0x0FFFFFF8;  
     }
 
     // Read the 4-byte FAT entry
     uint32_t next_cluster = *(uint32_t *)&buffer[fat_entry_offset] & 0x0FFFFFFF;
-
-    // Debugging output
-    // printf("Current cluster: %u, Next cluster: %u\n", current_cluster, next_cluster);
 
     return next_cluster;
 }
 
 
 uint32_t cluster_to_sector(uint32_t cluster) {
-    // return boot_sector.reserved_sectors + (boot_sector.num_fats * boot_sector.sectors_per_fat) + (cluster - 2) * boot_sector.sectors_per_cluster;
-    // Calculate the first data sector
     uint32_t first_data_sector = boot_sector.reserved_sectors + (boot_sector.num_fats * boot_sector.sectors_per_fat);
-    // printf("first_data_sector: %d\n", first_data_sector);
-    // Calculate the sector for the given cluster (clusters start from 2)
-    
-    
     return first_data_sector + (cluster - 2) * boot_sector.sectors_per_cluster;
 }
 
@@ -1089,7 +1080,7 @@ int update_file_size(const char *filename, uint32_t new_size) {
     uint8_t buffer[512];
     uint32_t directory_cluster = current_directory_cluster;
 
-    printf(" yo1 + %d", directory_cluster);
+    // printf(" yo1 + %d", directory_cluster);
 
     // while (directory_cluster < 0x0FFFFFF8) {
     while (1) {
@@ -1098,7 +1089,7 @@ int update_file_size(const char *filename, uint32_t new_size) {
             return -1;
         }
 
-        printf("yo2");
+        // printf("yo2");
         for (int i = 0; i < 512; i += 32) {
             struct FAT32_DirectoryEntry *entry = (struct FAT32_DirectoryEntry *)&buffer[i];
 
@@ -1122,14 +1113,14 @@ int update_file_size(const char *filename, uint32_t new_size) {
             if (strncmp(entry_name, filename, 11) == 0) {
                 // Update the file size
                 entry->file_size = new_size;
-                printf("yo3");
+                // printf("yo3");
                 // Write back the updated directory entry
                 if (write_sector(sector_number, buffer) != 0) {
                     printf("Error writing updated directory entry\n");
                     return -1;
                 }
 
-                printf("yo4");
+                // printf("yo4");
                 // printf("Updated file size for %s to %u bytes\n", filename, new_size);
                 return 0;
             }
@@ -1286,7 +1277,7 @@ int overwrite_file(const uint8_t *data, uint32_t data_length, const char *filena
         printf("Failed to update file size\n");
         return -1;
     }
-    printf("done");
+    // printf("done");
 
     // return bytes_written;
 

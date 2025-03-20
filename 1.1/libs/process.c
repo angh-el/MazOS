@@ -41,12 +41,8 @@ void context_switch() {
 }
 
 
-
-
-
-// A simple task startup function (will be the first function to run in the new task)
 void task_startup(void (*task_function)()) {
-    // Call the actual task function after initialization
+    // Call the actual task function after initialisation
     task_function();
 }
 
@@ -56,21 +52,12 @@ task_control_block_t* create_kernel_task(void (*task_function)(), int pid, int e
     
     task_control_block_t* new_task = (task_control_block_t*)kmalloc(sizeof(task_control_block_t));
     if (new_task == NULL) {
-        // Handle allocation failure (e.g., print error, return NULL)
         return NULL;
     }
 
     // Allocate memory for the task's kernel stack
-    // uint32_t* new_stack = (uint32_t*)kmalloc(KERNEL_STACK_SIZE * sizeof(uint32_t));  // Assume KERNEL_STACK_SIZE is defined
     uint32_t* new_stack = (uint32_t*)kmalloc(KERNEL_STACK_SIZE);
-
     
-    if (new_stack == NULL) {
-        // Handle allocation failure for the stack
-        kfree(new_task);  // Free the task's TCB as well
-        return NULL;
-    }
-
 
     // Manually map the allocated stack pages
     for (uint32_t i = 0; i < KERNEL_STACK_SIZE; i += 0x1000) {
@@ -98,7 +85,7 @@ task_control_block_t* create_kernel_task(void (*task_function)(), int pid, int e
     // Initialize the new task's TCB
     new_task->kernel_stack_top = new_stack;
     new_task->virtual_address_space = current_task->virtual_address_space;  // Inherit the current address space
-    new_task->state = 0;  // Initially set as "ready" or "waiting"
+    new_task->state = 0;  // Initially set as "ready" 
     new_task->cpu_time = 0;
     new_task->priority = 0;
     new_task->task_name = "New Task";
@@ -110,14 +97,9 @@ task_control_block_t* create_kernel_task(void (*task_function)(), int pid, int e
     new_task->tickets = tickets;
     
 
-
-
-    // Set up the kernel stack for the new task
-    // Stack will contain the return EIP for `task_startup` function and then the task's real function
-    
+    // Set up the kernel stack for the new task    
     // uint32_t* stack_ptr = new_stack + KERNEL_STACK_SIZE - 1;
     uint32_t* stack_ptr = (uint32_t*)((uint8_t*)new_stack + KERNEL_STACK_SIZE - sizeof(uint32_t));
-
 
     uint32_t stack_page = (uint32_t)stack_ptr & ~0xFFF;  // Get the start of the page
     uint32_t* stack_page_table = REC_PAGETABLE(stack_page >> 22);
@@ -653,8 +635,6 @@ void schedule() {
         schedule_Lottery();
     }
 }
-
-
 
 
 void schedule_test() {

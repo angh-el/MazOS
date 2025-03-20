@@ -66,9 +66,9 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
 
 
     // print("Allocating memory for kernel\n");
-    // init_kmalloc(0x1000);
+    init_kmalloc(0x1000);
 
-    init_kmalloc(0x100000);
+    // init_kmalloc(0x100000);
     
     // calculator();
     // test();
@@ -79,6 +79,8 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
         printf("FAT32 mount failed!\n");
         // return -1;
     }
+
+    init_syscalls();
 
     ls();
 

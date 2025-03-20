@@ -15,6 +15,7 @@
 #define SYS_EXECVE      8
 #define SYS_WAITPID     9
 #define SYS_GETPID      10
+#define SYS_KILL        11
 
 typedef unsigned long size_t;
 typedef signed long ssize_t;
@@ -34,8 +35,7 @@ int sys_close(int fd);
 void *sys_sbrk(int increment);
 pid_t sys_fork(void);
 int sys_execve(const char *path, char *const argv[], char *const envp[]);
-pid_t sys_waitpid(pid_t pid, int *status, int options);
-pid_t sys_getpid(void); 
+
 
 
 

@@ -14,7 +14,8 @@ typedef enum{
     MODE_SNAKE,         // 2
     MODE_PAINT,
     MODE_CLI,
-    MODE_GRAPHICS
+    MODE_GRAPHICS,
+    MODE_PROCESSES
 }Mode;
 
 
