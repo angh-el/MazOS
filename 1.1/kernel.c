@@ -86,7 +86,9 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
 
     cd("IMAGES     ");
     ls();
+    cd_up("..         ");
 
+    clear_screen();
     // init_mouse();
 
     // paint();
@@ -98,44 +100,9 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
 
     // test_memory_management();
 
-
-
     // clear_screen();
     // paint();
     // sleep();
-
-    // sleep();
-    // start_snake_game();
-
-    // set_video_mode();  
-    // draw_png_from_txt("DOG     TXT");
-    // sleep();
-    // // clear_screen_grpahics(0);
-    // draw_png_from_txt("CAT     TXT");
-    // sleep();
-    // // clear_screen_grpahics(0);
-    // draw_png_from_txt("TREE    TXT");
-    // sleep();
-    // // clear_screen_grpahics(0);
-    // draw_png_from_txt("TRAIN   TXT");
-    // sleep();
-    // clear_screen_grpahics(0);
-    // reset_video_mode();
-    // clear_screen();
-    // printf("hi\n");
-
-    // clear_screen();
-    // draw_quarters();
-    // while(1){
-    //     process_1();
-    //     // process_2();
-    //     // process_3();
-    //     // process_4();
-
-    //     // sleep();
-    //     // sleep();
-    // }
-
 
     for(;;);
 }
@@ -164,35 +131,3 @@ void sleep(){
     }
 }
 
-
-
-/*
-    printf("\n Task Metrics for %s Scheduling:\n", "RR");
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 1, 30, 0);
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 2, 40, 10);
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 3, 50, 20);
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 4, 60, 20);    
-    printf(" Average Turnaround Time: %d   ", 45);
-    printf(" Average Response Time: %d\n", 15);
-    printf(" %s Scheduling Completed.\n", "RR");
-
-    printf("\n Task Metrics for %s Scheduling:\n", "FCFS");
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 1, 10, 0);
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 2, 27, 7);
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 3, 40, 25);
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 4, 62, 37);
-    printf(" Average Turnaround Time: %d   ", (10 + 27 + 40 + 62) / 4);
-    printf(" Average Response Time: %d\n", (0 + 7 + 25 + 37) / 4);
-    printf(" %s Scheduling Completed.\n", "FCFS");
-
-
-    printf("\n Task Metrics for %s Scheduling:\n", "Lottery");
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 1, 12, 0);
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 2, 30, 10);
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 3, 34, 11);
-    printf(" Process %d - Turnaround Time: %d, Response Time: %d\n", 4, 49, 14);
-    printf(" Average Turnaround Time: %d   ", (12 + 30 + 34 + 49) / 4);
-    printf(" Average Response Time: %d\n", (0 + 10 + 11 + 14) / 4);
-    printf(" %s Scheduling Completed.", "Lottery");
-
-*/

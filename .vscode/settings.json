@@ -2,6 +2,8 @@
     "files.associations": {
         "screen.h": "c",
         "graphics.h": "c",
-        "audio.h": "c"
+        "audio.h": "c",
+        "keyboard.h": "c",
+        "cli.h": "c"
     }
 }
