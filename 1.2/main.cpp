@@ -1,22 +1,11 @@
-
-class Hello {
-
-public:
-    Hello(int i);
-    
-};
-
-Hello::Hello(int i){
-    // printf("%i", i);
-}       
+#include "lib/stdint.hpp"
 
 
 
 
+int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
-int main(){
 
-    Hello h(1);
     return 0;
 }
