@@ -13,7 +13,8 @@ boot:
 
 
 image:
-	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o 
+#	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o 
+	ld -m elf_i386 -T linker.ld -o kernel *.o
 	mv kernel MazOS/boot/kernel
 
 	mkdir -p MazOS/files
