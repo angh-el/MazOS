@@ -6,12 +6,7 @@
 
 #define CEIL_DIV(a,b) (((a+b)-1)/b)
 
-void memset(void *dest, char val, uint32_t count){
-    char *temp = (char*) dest;
-    for (; count != 0; count --){
-        *temp++ = val;
-    }
-};
+void memset(void *dest, char val, uint32_t count);
 
 inline unsigned char port_byte_in ( unsigned short port ){
     unsigned char result ;

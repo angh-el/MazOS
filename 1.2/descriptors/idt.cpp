@@ -2,10 +2,15 @@
 
 extern "C" void idt_flush(uint32_t);
 
+
+
+
+
 namespace DescriptorTables {
     static IDTEntry idt_entries[256];
     static IDTPtr idt_ptr;
-     void *irq_routines[16] = {0};
+    // void *irq_routines[16] = {0};
+    void (*irq_routines[16])(interrupt_register*);
 
     void IDT::init(){
         // printf("init_idt\n");
@@ -89,6 +94,41 @@ namespace DescriptorTables {
         idt_entries[num].flags = flags | 0x60;
     }
 
+    const char* interrupt_messages[] ={
+        "Division by zero",
+        "Single-step interrupt",
+        "Non Maskable Interrupt",
+        "Breakpoint",
+        "Overflow",
+        "Bound Range Exceeded",
+        "Invalid Opcode",
+        "Coprocessor not available",
+        "Double Fault",
+        "Coprocessor Segment Overrun",
+        "Invalid Task State Segment",
+        "Segment not present",
+        "Stack Segment Fault",
+        "General Protection Fault",
+        "Page Fault",
+        "Reserved",
+        "x87 Floating Point Exception",
+        "Alignment Fault",
+        "Machine Check", 
+        "Single Instruction Multiple Data Floating-Point Exception",
+        "Virtualization Exception",
+        "Control Protection Exception",
+        "Reserved",
+        "Reserved",
+        "Reserved",
+        "Reserved",
+        "Reserved",
+        "Reserved",
+        "Reserved",
+        "Reserved",
+        "Reserved",
+        "Reserved"
+    };
+
     void IDT::handle_isr(struct interrupt_register* registers){                                                                                         
         if(registers->int_no < 32){
             // print(interrupt_messages[registers->int_no]);
@@ -102,12 +142,11 @@ namespace DescriptorTables {
         irq_routines[irq] = handler;
     }
 
-    void IDT::clear_irq_handler(int irq){
-        irq_routines[irq] = 0;
-    }
 
     void IDT::handle_irq(struct interrupt_register *regs){
         void(*handler)(struct interrupt_register *regs);
+        // void (*irq_routines[16])(interrupt_register*);
+        
         handler = irq_routines[regs->int_no-32]; 
 
         if(handler){
@@ -129,3 +168,11 @@ namespace DescriptorTables {
     }
 
 }
+
+// extern "C" void handle_isr(struct interrupt_register* r) {
+//     DescriptorTables::IDT::handle_isr(r);
+// }
+
+// extern "C" void handle_irq(struct interrupt_register* r) {
+//     DescriptorTables::IDT::handle_irq(r);
+// }

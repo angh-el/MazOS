@@ -4,13 +4,17 @@ clean:
 	rm -rf *.o
 
 kernel:
-	g++ -m32 -fno-stack-protector -fno-builtin -c kernel.cpp -o kernel.o
-
+	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c kernel.cpp -o kernel.o
+	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c lib/util.cpp -o util.o
+	
+	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c descriptors/gdt.cpp -o gdt.o
+	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c descriptors/idt.cpp -o idt.o
+	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c descriptors/idt_wrapper.cpp -o idt_wrapper.o	
 
 boot:
 	nasm -f elf32 boot.s -o boot.o
-
-
+	nasm -f elf32 descriptors/gdt_flush.s -o gdt_flush.o
+	nasm -f elf32 descriptors/idt_flush.s -o idt_flush.o
 
 image:
 #	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o 
