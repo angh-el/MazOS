@@ -11,6 +11,7 @@
 
 int main(uint32_t magic, struct multiboot_info* bootInfo){
 
+    // initialise the gdt and idt tables
     DescriptorTables::GDT::init();
     DescriptorTables::IDT::init();
 
