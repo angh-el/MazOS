@@ -7,6 +7,8 @@
 // #include "../lib/printf.hpp"
 #include "../lib/util.hpp"
 
+#include "heap_manager.hpp"
+
 // defines
 extern uint32_t initial_page_directory[1024];
 #define KERNEL_START 0xc0000000
