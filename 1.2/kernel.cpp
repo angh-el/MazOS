@@ -44,5 +44,7 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
     // TODO CLI
 
+
+
     return 0;
 }
