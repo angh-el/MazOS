@@ -35,10 +35,10 @@ public:
     const char* selected_algorithm = "FCFS";
 
     // member functions
-    void init();
-    void context_switch();
-    void task_startup(void (*task_function)());
-    task_control_block_t* create_task(void (*task_function)(), int pid, int exec_time, int tickets);
+    static void init();
+    static void context_switch();
+    static void task_startup(void (*task_function)());
+    static task_control_block_t* create_task(void (*task_function)(), int pid, int exec_time, int tickets);
 
 
 };
