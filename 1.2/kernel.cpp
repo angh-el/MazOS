@@ -12,13 +12,16 @@
 #include "managers/heap_manager.hpp"        // heap manager
 #include "managers/process_manager.hpp"     // process manager
 
+// dirvers
+#include "drivers/display/display.hpp"      // display driver
+
 
 int main(uint32_t magic, struct multiboot_info* bootInfo){
 
     // initialise the gdt and idt tables
     DescriptorTables::GDT::init();
     DescriptorTables::IDT::init();
-
+    
 
     // initialse memory
     uint32_t mod = *(uint32_t*)(bootInfo->mods_addr+4);
@@ -35,8 +38,21 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
     // TODO: Drivers
+    // for (int i {0}; i < 100; ++i){
+    //     Display::print("hello\n");
+    // }
 
+    // volatile uint16_t* videoMemory = (uint16_t*)0xc00B8000;
+    // // volatile unsigned short* videoMemory = (unsigned short*)0xc00B8000;
 
+    // char c = 'A';
+    // unsigned char colour = 0x0f;
+    // unsigned int position = 0;
+    // videoMemory[position] = (colour << 8) | c;
+    Display::print("sybau");
+    // Display::print(0/0);
+    // int i = 0/ 0 ;
+    Display::print("sybau");
 
     // TODO: Syscalls
 

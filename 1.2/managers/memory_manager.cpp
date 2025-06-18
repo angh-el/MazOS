@@ -80,7 +80,7 @@ uint32_t MemoryManager::alloc_page_frame(){
 void MemoryManager::map_page(uint32_t vir_addr, uint32_t phys_addr, uint32_t flags){
     uint32_t* previous_page_dir = 0;
     
-    if((*previous_page_dir) >= KERNEL_START){
+    if((uint32_t)previous_page_dir >= KERNEL_START){
         previous_page_dir = get_current_page_dir();
         if(previous_page_dir != initial_page_directory) change_page_dir(initial_page_directory);
     }
