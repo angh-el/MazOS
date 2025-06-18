@@ -2,6 +2,7 @@
 #include "lib/multiboot.hpp"
 #include "lib/stdint.hpp"
 #include "lib/util.hpp"
+#include "lib/printf.hpp"
 
 // descriptors (IDT & GDT)
 #include "descriptors/gdt.hpp"
@@ -38,21 +39,9 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
     // TODO: Drivers
-    // for (int i {0}; i < 100; ++i){
-    //     Display::print("hello\n");
-    // }
-
-    // volatile uint16_t* videoMemory = (uint16_t*)0xc00B8000;
-    // // volatile unsigned short* videoMemory = (unsigned short*)0xc00B8000;
-
-    // char c = 'A';
-    // unsigned char colour = 0x0f;
-    // unsigned int position = 0;
-    // videoMemory[position] = (colour << 8) | c;
     Display::print("sybau");
-    // Display::print(0/0);
-    // int i = 0/ 0 ;
-    Display::print("sybau");
+    printf("\n%d\n", 30);
+    printf("hellooooo\n");
 
     // TODO: Syscalls
 
