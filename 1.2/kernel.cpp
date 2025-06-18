@@ -10,6 +10,7 @@
 // managers
 #include "managers/memory_manager.hpp"      // memory manager
 #include "managers/heap_manager.hpp"        // heap manager
+#include "managers/process_manager.hpp"     // process manager
 
 
 int main(uint32_t magic, struct multiboot_info* bootInfo){
@@ -29,6 +30,19 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
     // process manager
+    ProcessManager processManager;
+    processManager.init();
+
+
+    // TODO: Drivers
+
+
+
+    // TODO: Syscalls
+
+
+
+    // TODO CLI
 
     return 0;
 }

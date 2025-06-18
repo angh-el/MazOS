@@ -534,132 +534,134 @@ task_control_block_t* ProcessManager::create_task(void (*task_function)(), int p
 /*
 ALGORITHM TO EVALUATE WHICH SCHEDULING ALGORITHM IS MOST EFFICIENT
 */
-void init_tasks() {
-    // for (int i = 0; i < 4; i++) {
-        task_list[0] = create_kernel_task( &process_1, 0, (0 + 1) * 10, (0 + 1) * 5); 
-        task_list[1] = create_kernel_task(&process_1, 1, (1 + 1) * 10, (1 + 1) * 5); 
-        task_list[2] = create_kernel_task( &process_1, 2, (2 + 1) * 10, (2 + 1) * 5); 
-        task_list[3] = create_kernel_task( &process_1, 3, (3 + 1) * 10, (3 + 1) * 5); 
-    // }
-    current_task = task_list[0];
-}
 
 
-void schedule_RR() {
-    if (current_task->time_remaining > 0) {
-        current_task->time_remaining -= TIME_QUANTUM;
-    }
-    if (current_task->time_remaining <= 0) {
-        current_task->state = 2; // Mark as finished
-    }
-    current_task_index = (current_task_index + 1) % NUM_TASKS;
-    current_task = task_list[current_task_index];
-}
+// void init_tasks() {
+//     // for (int i = 0; i < 4; i++) {
+//         task_list[0] = create_kernel_task( &process_1, 0, (0 + 1) * 10, (0 + 1) * 5); 
+//         task_list[1] = create_kernel_task(&process_1, 1, (1 + 1) * 10, (1 + 1) * 5); 
+//         task_list[2] = create_kernel_task( &process_1, 2, (2 + 1) * 10, (2 + 1) * 5); 
+//         task_list[3] = create_kernel_task( &process_1, 3, (3 + 1) * 10, (3 + 1) * 5); 
+//     // }
+//     current_task = task_list[0];
+// }
 
 
-void schedule_FCFS() {
-    for (int i = 0; i < NUM_TASKS; i++) {
-        if (task_list[i]->state == 0) {
-            current_task = task_list[i];
-            current_task->state = 1;
-            while (current_task->time_remaining > 0) {
-                current_task->time_remaining--;
-            }
-            current_task->state = 2; // Mark as finished
-        }
-    }
-}
+// void schedule_RR() {
+//     if (current_task->time_remaining > 0) {
+//         current_task->time_remaining -= TIME_QUANTUM;
+//     }
+//     if (current_task->time_remaining <= 0) {
+//         current_task->state = 2; // Mark as finished
+//     }
+//     current_task_index = (current_task_index + 1) % NUM_TASKS;
+//     current_task = task_list[current_task_index];
+// }
 
 
-void schedule_Lottery() {
-    int total_tickets = 0;
-    for (int i = 0; i < NUM_TASKS; i++) {
-        if (task_list[i]->state == 0) {
-            total_tickets += task_list[i]->tickets;
-        }
-    }
-    int winner = rand() % total_tickets;
-    int sum = 0;
-    for (int i = 0; i < NUM_TASKS; i++) {
-        if (task_list[i]->state == 0) {
-            sum += task_list[i]->tickets;
-            if (sum > winner) {
-                current_task = task_list[i];
-                current_task->state = 1;
-                current_task->time_remaining--;
-                if (current_task->time_remaining <= 0) {
-                    current_task->state = 2;
-                }
-                break;
-            }
-        }
-    }
-}
+// void schedule_FCFS() {
+//     for (int i = 0; i < NUM_TASKS; i++) {
+//         if (task_list[i]->state == 0) {
+//             current_task = task_list[i];
+//             current_task->state = 1;
+//             while (current_task->time_remaining > 0) {
+//                 current_task->time_remaining--;
+//             }
+//             current_task->state = 2; // Mark as finished
+//         }
+//     }
+// }
 
 
-// Scheduler Runner
-void run_scheduler(const char* algorithm) {
-    printf("Running %s Scheduling\n", algorithm);
-    selected_algorithm = algorithm;
-    init_tasks();
-
-    while (1) {
-        int finished_tasks = 0;
-        for (int i = 0; i < NUM_TASKS; i++) {
-            if (task_list[i]->state == 2) {
-                finished_tasks++;
-            }
-        }
-        if (finished_tasks == NUM_TASKS) {
-            break;
-        }
-
-        if (strncmp(algorithm, "RR", 2) == 0) {
-            schedule_RR();
-        } else if (strncmp(algorithm, "FCFS", 4) == 0) {
-            schedule_FCFS();
-        } else if (strncmp(algorithm, "Lottery", 7) == 0) {
-            schedule_Lottery();
-        }
-    }
-
-    // Calculate metrics
-    int total_turnaround_time = 0;
-    int total_response_time = 0;
-
-    printf("\nTask Metrics for %s Scheduling:\n", algorithm);
-    for (int i = 0; i < NUM_TASKS; i++) {
-        int turnaround_time = task_list[i]->completion_time - task_list[i]->arrival_time;
-        int response_time = task_list[i]->start_time - task_list[i]->arrival_time;
-        total_turnaround_time += turnaround_time;
-        total_response_time += response_time;
-        printf("Task %d - Turnaround Time: %d, Response Time: %d\n", task_list[i]->pid, turnaround_time, response_time);
-    }
-
-    int avg_turnaround_time = total_turnaround_time / (int)NUM_TASKS;
-    int avg_response_time = total_response_time / (int)NUM_TASKS;
-
-    printf("Average Turnaround Time: %d\n", avg_turnaround_time);
-    printf("Average Response Time: %d\n", avg_response_time);
-    printf("%s Scheduling Completed.\n\n", algorithm);
-}
+// void schedule_Lottery() {
+//     int total_tickets = 0;
+//     for (int i = 0; i < NUM_TASKS; i++) {
+//         if (task_list[i]->state == 0) {
+//             total_tickets += task_list[i]->tickets;
+//         }
+//     }
+//     int winner = rand() % total_tickets;
+//     int sum = 0;
+//     for (int i = 0; i < NUM_TASKS; i++) {
+//         if (task_list[i]->state == 0) {
+//             sum += task_list[i]->tickets;
+//             if (sum > winner) {
+//                 current_task = task_list[i];
+//                 current_task->state = 1;
+//                 current_task->time_remaining--;
+//                 if (current_task->time_remaining <= 0) {
+//                     current_task->state = 2;
+//                 }
+//                 break;
+//             }
+//         }
+//     }
+// }
 
 
+// // Scheduler Runner
+// void run_scheduler(const char* algorithm) {
+//     printf("Running %s Scheduling\n", algorithm);
+//     selected_algorithm = algorithm;
+//     init_tasks();
 
-void schedule() {
-    if (strncmp(selected_algorithm, "RR",2) == 0) {
-        schedule_RR();
-    } else if (strncmp(selected_algorithm, "FCFS", 4) == 0) {
-        schedule_FCFS();
-    } else if (strncmp(selected_algorithm, "Lottery", 7) == 0) {
-        schedule_Lottery();
-    }
-}
+//     while (1) {
+//         int finished_tasks = 0;
+//         for (int i = 0; i < NUM_TASKS; i++) {
+//             if (task_list[i]->state == 2) {
+//                 finished_tasks++;
+//             }
+//         }
+//         if (finished_tasks == NUM_TASKS) {
+//             break;
+//         }
+
+//         if (strncmp(algorithm, "RR", 2) == 0) {
+//             schedule_RR();
+//         } else if (strncmp(algorithm, "FCFS", 4) == 0) {
+//             schedule_FCFS();
+//         } else if (strncmp(algorithm, "Lottery", 7) == 0) {
+//             schedule_Lottery();
+//         }
+//     }
+
+//     // Calculate metrics
+//     int total_turnaround_time = 0;
+//     int total_response_time = 0;
+
+//     printf("\nTask Metrics for %s Scheduling:\n", algorithm);
+//     for (int i = 0; i < NUM_TASKS; i++) {
+//         int turnaround_time = task_list[i]->completion_time - task_list[i]->arrival_time;
+//         int response_time = task_list[i]->start_time - task_list[i]->arrival_time;
+//         total_turnaround_time += turnaround_time;
+//         total_response_time += response_time;
+//         printf("Task %d - Turnaround Time: %d, Response Time: %d\n", task_list[i]->pid, turnaround_time, response_time);
+//     }
+
+//     int avg_turnaround_time = total_turnaround_time / (int)NUM_TASKS;
+//     int avg_response_time = total_response_time / (int)NUM_TASKS;
+
+//     printf("Average Turnaround Time: %d\n", avg_turnaround_time);
+//     printf("Average Response Time: %d\n", avg_response_time);
+//     printf("%s Scheduling Completed.\n\n", algorithm);
+// }
 
 
-void schedule_test() {
-    run_scheduler("RR");
-    run_scheduler("FCFS");
-    run_scheduler("Lottery");
-}
+
+// void schedule() {
+//     if (strncmp(selected_algorithm, "RR",2) == 0) {
+//         schedule_RR();
+//     } else if (strncmp(selected_algorithm, "FCFS", 4) == 0) {
+//         schedule_FCFS();
+//     } else if (strncmp(selected_algorithm, "Lottery", 7) == 0) {
+//         schedule_Lottery();
+//     }
+// }
+
+
+// void schedule_test() {
+//     run_scheduler("RR");
+//     run_scheduler("FCFS");
+//     run_scheduler("Lottery");
+// }
 //////////////////////////////////////////////////////////////

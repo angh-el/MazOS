@@ -30,15 +30,15 @@ public:
     // member variables
     task_control_block_t* current_task = nullptr;  // Global pointer to the current task
     task_control_block_t* next_task = nullptr;     // Pointer to the next task
-    task_control_block_t* task_list[4];
+    static task_control_block_t* task_list[4];
     int current_task_index = 0;
     const char* selected_algorithm = "FCFS";
 
     // member functions
-    static void init();
-    static void context_switch();
-    static void task_startup(void (*task_function)());
-    static task_control_block_t* create_task(void (*task_function)(), int pid, int exec_time, int tickets);
+    void init();
+    void context_switch();
+    void task_startup(void (*task_function)());
+    task_control_block_t* create_task(void (*task_function)(), int pid, int exec_time, int tickets);
 
 
 };
