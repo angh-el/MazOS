@@ -7,6 +7,9 @@
 #include "descriptors/gdt.hpp"
 #include "descriptors/idt.hpp"
 
+// managers
+#include "managers/memory_manager.hpp"      // memory manager
+#include "managers/heap_manager.hpp"        // heap manager
 
 
 int main(uint32_t magic, struct multiboot_info* bootInfo){
@@ -15,6 +18,17 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
     DescriptorTables::GDT::init();
     DescriptorTables::IDT::init();
 
+
+    // initialse memory
+    uint32_t mod = *(uint32_t*)(bootInfo->mods_addr+4);
+    uint32_t physicalAllocationStart = (mod + 0xfff) & ~0xfff;
+    MemoryManager::init(bootInfo->mem_upper * 1024, physicalAllocationStart);
+    MemoryManager::map_page((uint32_t)bootInfo, (uint32_t)bootInfo, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE);
+    // allocate memory for the kernel on the heap
+    init_kmalloc(0x1000);
+
+
+    // process manager
 
     return 0;
 }
