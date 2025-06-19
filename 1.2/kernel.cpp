@@ -39,9 +39,9 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
     // TODO: Drivers
-    Display::print("sybau");
-    printf("\n%d\n", 30);
-    printf("hellooooo\n");
+    Display::print("Test test test\bt\n");
+    
+
 
     // TODO: Syscalls
 

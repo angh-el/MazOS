@@ -9,7 +9,6 @@
 class Display {
 public:
     static constexpr unsigned int VIDEO_ADDRESS = 0xc00b8000;
-    // static constexpr int VIDEO_ADDRESS = 0xcb8000;
     static constexpr int MAX_ROWS = 25;
     static constexpr int MAX_COLS = 80;
     static constexpr char WHITE_ON_BLACK = 0x0f;

@@ -7,8 +7,11 @@ kernel:
 # 	kernel.cpp
 	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c kernel.cpp -o kernel.o
 
+## 	libs
 #  	uitl.cpp
 	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c lib/util.cpp -o util.o
+#	printf
+	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c lib/printf.cpp -o printf.o
 
 #	descriptors (idt.cpp & gdt.cpp)	  
 	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c descriptors/gdt.cpp -o gdt.o
@@ -19,6 +22,11 @@ kernel:
 	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c managers/memory_manager.cpp -o memory_manager.o
 	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c managers/heap_manager.cpp -o heap_manager.o
 	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c managers/process_manager.cpp -o process_manager.o
+
+##	drivers
+#	display driver
+	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c drivers/display/display.cpp -o display.o
+
 
 boot:
 	nasm -f elf32 boot.s -o boot.o
