@@ -1,5 +1,15 @@
 #include "graphics.hpp"
 
+static constexpr int MAX_PALETTE_COLORS         = 256;
+// Track which colors are already in the palette
+typedef struct {
+    unsigned char r;  // 0-63
+    unsigned char g;  // 0-63
+    unsigned char b;  // 0-63
+    int used;         // Usage count for LRU replacement
+} PaletteEntry;
+static PaletteEntry palette[MAX_PALETTE_COLORS];
+
 void Graphics::init_palette() {
     // Initialize the first 16 colors as standard VGA colors
     uint8_t standard_colors[16][3] = {
