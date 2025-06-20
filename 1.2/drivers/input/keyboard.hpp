@@ -10,7 +10,7 @@
 #include "../../drivers/display/graphics.hpp"
 #include "../../managers/process_manager.hpp"
 
-void yoo();
+
 
 enum class Mode {
     MODE_DEFUALT,       // 0

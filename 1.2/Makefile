@@ -1,5 +1,7 @@
 all: clean kernel boot image
 
+CXXFLAGS = -fno-rtti -fno-exceptions -ffreestanding -fno-stack-protector -fno-builtin
+
 clean:
 	rm -rf *.o
 
@@ -26,7 +28,12 @@ kernel:
 ##	drivers
 #	display driver
 	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c drivers/display/display.cpp -o display.o
-
+#	graphics driver
+	g++ -m32 -ffreestanding -fno-stack-protector -fno-builtin -c drivers/display/graphics.cpp -o graphics.o
+#	keyboard driver
+	g++ -m32 $(CXXFLAGS) -c drivers/input/keyboard.cpp -o keyboard.o
+#	mouse driver
+	g++ -m32 $(CXXFLAGS) -c drivers/input/mouse.cpp -o mouse.o
 
 boot:
 	nasm -f elf32 boot.s -o boot.o
