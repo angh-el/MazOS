@@ -16,9 +16,9 @@
 // dirvers                                  
 #include "drivers/display/display.hpp"      // display driver
 #include "drivers/display/graphics.hpp"     // graphics driver
-#include "drivers/input/input_deivce.hpp"
 #include "drivers/input/keyboard.hpp"       // keyboard driver
-#include "drivers/input/mouse.hpp"       // mouse driver
+#include "drivers/input/mouse.hpp"          // mouse driver
+#include "drivers/storage/disk.hpp"         // disk driver
 
 int main(uint32_t magic, struct multiboot_info* bootInfo){
 
@@ -56,6 +56,10 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
     // mouse driver
     Mouse mouse;
     mouse.init();
+
+    // disk driver
+    Disk::init();
+    printf("Disk size: %d\n", Disk::get_size());
 
     // TODO: Syscalls
 
