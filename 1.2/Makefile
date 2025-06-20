@@ -36,6 +36,9 @@ kernel:
 	g++ -m32 $(CXXFLAGS) -c drivers/input/mouse.cpp -o mouse.o
 #	disk driver
 	g++ -m32 $(CXXFLAGS) -c drivers/storage/disk.cpp -o disk.o
+#	disk driver
+	g++ -m32 $(CXXFLAGS) -c drivers/storage/fat32.cpp -o fat32.o
+
 
 boot:
 	nasm -f elf32 boot.s -o boot.o

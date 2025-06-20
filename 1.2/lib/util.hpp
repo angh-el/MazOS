@@ -28,6 +28,11 @@ inline void port_word_out ( unsigned short port , unsigned short data ){
     __asm__ ("out %%ax, %%dx" : :"a" ( data ), "d" ( port ));
 };
 
+int strncmp(const char *str1, const char *str2, unsigned int n);
+void simple_memcpy(void* dest, const void* src,  unsigned int n);
+int convert_to_int(int num_array[], int size);
+
+
 struct interrupt_register{
     uint32_t cr2;
     uint32_t ds;

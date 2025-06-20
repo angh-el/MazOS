@@ -19,6 +19,7 @@
 #include "drivers/input/keyboard.hpp"       // keyboard driver
 #include "drivers/input/mouse.hpp"          // mouse driver
 #include "drivers/storage/disk.hpp"         // disk driver
+#include "drivers/storage/fat32.hpp"        // fat32 driver
 
 int main(uint32_t magic, struct multiboot_info* bootInfo){
 
@@ -60,6 +61,12 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
     // disk driver
     Disk::init();
     printf("Disk size: %d\n", Disk::get_size());
+
+    // Fat32 driver
+    Fat32 fat32;
+    fat32.mount(0);
+    fat32.ls();
+    
 
     // TODO: Syscalls
 
