@@ -131,14 +131,15 @@ namespace DescriptorTables {
 
     void IDT::handle_isr(struct interrupt_register* registers){                                                                                         
         if(registers->int_no < 32){
-            // print(interrupt_messages[registers->int_no]);
+            printf(interrupt_messages[registers->int_no]);
             // print("\nSystem is on a break styulll\n");
             for(;;);
         }   
     }
 
     void IDT::irq_install_handler (int irq, void (*handler)(struct interrupt_register *r)){
-        // printf("Installed IRQ %d handler at 0x%x\n", irq, (uint32_t)handler);
+        // printf("yoooo\n");
+        printf("Installed IRQ %d handler at 0x%x\n", irq, (uint32_t)handler);
         irq_routines[irq] = handler;
     }
 
@@ -164,7 +165,7 @@ namespace DescriptorTables {
     }
 
     void IDT::print_irq_routine(int irq){
-        // printf("irq_routines[%d]: 0x%x\n",irq, irq_routines[irq]);
+        printf("irq_routines[%d]: 0x%x\n",irq, irq_routines[irq]);
     }
 
 }

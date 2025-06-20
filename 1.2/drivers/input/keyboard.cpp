@@ -1,28 +1,41 @@
 #include "keyboard.hpp"
+#include "../../lib/printf.hpp"
 
 Keyboard * Keyboard::instance = nullptr;
 
+static Mode currentMode;
+static bool shift, caps;
 
-Keyboard::Keyboard() : currentMode(Mode::MODE_DEFUALT), shift(false), caps(false){};
+
+
+Keyboard::Keyboard() {
+    // empty constructor
+};
+
 
 
 void Keyboard::init(){
     instance = this;
-    DescriptorTables::IDT::irq_install_handler(1, &Keyboard::interrupt_wrapper);    
+    DescriptorTables::IDT::irq_install_handler(1, interrupt_wrapper);
 }
 
 void Keyboard::interrupt_wrapper(struct interrupt_register* regs){
-    if(instance)
-        instance->handleInterrupt();
+    char keyCode = port_byte_in(0x60) & 0x7f;
+    // if key is held or not
+    char press = port_byte_in(0x60) & 0x80;
+
+    handleKey(keyCode, press);
 }
 
-void Keyboard::handleInterrupt(){
+// void Keyboard::handleInterrupt(){
+void Keyboard::handleInterrupt(struct interrupt_register* regs){
     // what key is being pressed
     char keyCode = port_byte_in(0x60) & 0x7f;
 
     // if key is held or not
     char press = port_byte_in(0x60) & 0x80;
 
+    printf("%c", keyCode);
     handleKey(keyCode, press);
 }
 
@@ -150,6 +163,6 @@ void Keyboard::setCurrentMode(Mode mode){
     currentMode = mode;
 }
 
-Mode Keyboard::getCurrentMode() const{
+Mode Keyboard::getCurrentMode() {
     return currentMode;
 }

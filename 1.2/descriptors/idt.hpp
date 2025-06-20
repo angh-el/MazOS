@@ -3,7 +3,7 @@
 
 #include "../lib/stdint.hpp"
 #include "../lib/util.hpp"
-
+#include "../lib/printf.hpp"
 
 extern "C" void isr0();
 extern "C" void isr1();

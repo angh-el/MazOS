@@ -21,7 +21,8 @@
 static const char possibleChars[] = "0123456789abcdef";
 
 // functions
-void putc (const char c);
+// void putc (const char* c);
+void putc (char c);
 void puts (const char* str);
 void printf(const char * fmt, ...);
 int * printf_number(int*, int, boolean, int);

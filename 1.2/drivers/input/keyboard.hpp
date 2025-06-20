@@ -10,6 +10,7 @@
 #include "../../drivers/display/graphics.hpp"
 #include "../../managers/process_manager.hpp"
 
+void yoo();
 
 enum class Mode {
     MODE_DEFUALT,       // 0
@@ -26,17 +27,17 @@ class Keyboard : public InputDevice{
 public:
     Keyboard();
     void init() override;
-    void handleInterrupt() override;
+    void handleInterrupt(struct interrupt_register* regs) override;
 
     static void interrupt_wrapper(struct interrupt_register* regs);
 
-    void setCurrentMode(Mode mode);
-    Mode getCurrentMode() const;
+    static void setCurrentMode(Mode mode);
+    static Mode getCurrentMode() ;
 
 private:
-    Mode currentMode;
-    bool shift, caps;
-    void handleKey(uint8_t keyCode, bool press);
+    // static Mode currentMode;
+    // static bool shift, caps;
+    static void handleKey(uint8_t keyCode, bool press);
     static Keyboard* instance;
 };
 

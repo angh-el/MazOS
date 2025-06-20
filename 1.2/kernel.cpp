@@ -13,9 +13,10 @@
 #include "managers/heap_manager.hpp"        // heap manager
 #include "managers/process_manager.hpp"     // process manager
 
-// dirvers
+// dirvers                                  
 #include "drivers/display/display.hpp"      // display driver
-
+#include "drivers/display/graphics.hpp"     // graphics driver
+#include "drivers/input/keyboard.hpp"       // keyboard driver
 
 int main(uint32_t magic, struct multiboot_info* bootInfo){
 
@@ -40,16 +41,29 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
     // TODO: Drivers
     Display::print("Test test test\bt\n");
-    
+    // // graphics mode tests
+    // Graphics::init();
+    // Graphics::clear_screen(0);
+    // Graphics::draw_diagonal_line();
 
+    // keyboard driver
+    yoo();
+    // Keyboard *keyboard = (Keyboard*)kmalloc(sizeof(keyboard));
+    // MemoryManager::alloc_page_frame();
+    // MemoryManager::map_page((uint32_t)keyboard, (uint32_t)keyboard, PAGE_FLAG_PRESENT | PAGE_FLAG_WRITE);
+    // printf("yoo\n");
+    // keyboard->init();
+    Keyboard keyboard;
+    keyboard.init();
 
+    DescriptorTables::IDT::print_irq_routine(1);
     // TODO: Syscalls
 
 
 
     // TODO CLI
 
-
+    for(;;)
 
     return 0;
 }
