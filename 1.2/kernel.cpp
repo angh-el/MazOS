@@ -20,6 +20,7 @@
 #include "drivers/input/mouse.hpp"          // mouse driver
 #include "drivers/storage/disk.hpp"         // disk driver
 #include "drivers/storage/fat32.hpp"        // fat32 driver
+#include "drivers/timer.hpp"                // timer driver
 
 // syscall
 #include "syscall/syscall.hpp"              // syscall handler
@@ -73,6 +74,9 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
     fat32.mount(0);
     fat32.ls();
     
+    // timer
+    Timer::init();
+    Timer::terminate();
 
     // TODO: Syscalls
     Syscall::init();

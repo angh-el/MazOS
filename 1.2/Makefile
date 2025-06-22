@@ -38,7 +38,8 @@ kernel:
 	g++ -m32 $(CXXFLAGS) -c drivers/storage/disk.cpp -o disk.o
 #	disk driver
 	g++ -m32 $(CXXFLAGS) -c drivers/storage/fat32.cpp -o fat32.o
-
+#	timer
+	g++ -m32 $(CXXFLAGS) -c drivers/timer.cpp -o timer.o
 
 ##	syscall
 	g++ -m32 $(CXXFLAGS) -c syscall/syscall.cpp -o syscall.o
