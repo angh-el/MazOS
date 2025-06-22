@@ -40,6 +40,8 @@ kernel:
 	g++ -m32 $(CXXFLAGS) -c drivers/storage/fat32.cpp -o fat32.o
 #	timer
 	g++ -m32 $(CXXFLAGS) -c drivers/timer.cpp -o timer.o
+#	speaker
+	g++ -m32 $(CXXFLAGS) -c drivers/sound.cpp -o sound.o
 
 ##	syscall
 	g++ -m32 $(CXXFLAGS) -c syscall/syscall.cpp -o syscall.o

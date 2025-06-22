@@ -21,6 +21,7 @@
 #include "drivers/storage/disk.hpp"         // disk driver
 #include "drivers/storage/fat32.hpp"        // fat32 driver
 #include "drivers/timer.hpp"                // timer driver
+#include "drivers/sound.hpp"                // sound driver
 
 // syscall
 #include "syscall/syscall.hpp"              // syscall handler
@@ -77,6 +78,10 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
     // timer
     Timer::init();
     Timer::terminate();
+
+    // speaker
+    Sound::init();
+
 
     // TODO: Syscalls
     Syscall::init();
