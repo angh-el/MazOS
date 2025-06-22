@@ -20,6 +20,10 @@ typedef uint8_t boolean;
 #define true 1
 #define false 0
 
+typedef uint64_t size_t;
+typedef signed long ssize_t;
+typedef int pid_t;
+
 #define NULL ((void*)0)
 
 

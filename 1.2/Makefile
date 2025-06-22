@@ -40,11 +40,15 @@ kernel:
 	g++ -m32 $(CXXFLAGS) -c drivers/storage/fat32.cpp -o fat32.o
 
 
+##	syscall
+	g++ -m32 $(CXXFLAGS) -c syscall/syscall.cpp -o syscall.o
+
 boot:
 	nasm -f elf32 boot.s -o boot.o
 	nasm -f elf32 descriptors/gdt_flush.s -o gdt_flush.o
 	nasm -f elf32 descriptors/idt_flush.s -o idt_flush.o
 	nasm -f elf32 managers/process_manager_s.s -o process_manager_s.o
+	nasm -f elf32 syscall/syscall.s -o syscall_s.o
 
 image:
 #	ld -m elf_i386 -T linker.ld -o kernel boot.o kernel.o 

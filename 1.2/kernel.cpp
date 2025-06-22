@@ -21,6 +21,12 @@
 #include "drivers/storage/disk.hpp"         // disk driver
 #include "drivers/storage/fat32.hpp"        // fat32 driver
 
+// syscall
+#include "syscall/syscall.hpp"              // syscall handler
+
+
+
+
 int main(uint32_t magic, struct multiboot_info* bootInfo){
 
     // initialise the gdt and idt tables
@@ -62,10 +68,6 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
     Disk::init();
     printf("Disk size: %d\n", Disk::get_size());
 
-
-
-
-
     // Fat32 driver
     Fat32 fat32;
     fat32.mount(0);
@@ -73,7 +75,7 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
     
 
     // TODO: Syscalls
-
+    Syscall::init();
 
 
     // TODO CLI

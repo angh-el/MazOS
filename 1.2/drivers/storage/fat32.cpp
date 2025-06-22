@@ -547,8 +547,9 @@ void Fat32::ls() {
             } else {
                 printf(" [FILE]");
             }
-            printf(" Cluster number: %d", (entry->first_cluster_high << 16) | entry->first_cluster_low);
-            printf(" ATTRIBUTES: %d", entry->attributes);
+            // printf(" Size %d", entry->file_size);
+            // printf(" Cluster number: %d", (entry->first_cluster_high << 16) | entry->first_cluster_low);
+            // printf(" ATTRIBUTES: %d", entry->attributes);
             printf("\n");
         }
 
