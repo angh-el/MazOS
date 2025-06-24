@@ -46,6 +46,12 @@ kernel:
 ##	syscall
 	g++ -m32 $(CXXFLAGS) -c syscall/syscall.cpp -o syscall.o
 
+## 	user-space programs
+#	calculatro
+	g++ -m32 $(CXXFLAGS) -c user_space/calculator.cpp -o calculator.o
+#	snake
+	g++ -m32 $(CXXFLAGS) -c user_space/snake.cpp -o snake.o
+
 boot:
 	nasm -f elf32 boot.s -o boot.o
 	nasm -f elf32 descriptors/gdt_flush.s -o gdt_flush.o

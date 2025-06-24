@@ -11,6 +11,7 @@ int input_index = 0;
 
 int calculator();
 void apppend_to_buffer(char c);
+int evaluate_expression(const char *expr);
 
 
 #endif

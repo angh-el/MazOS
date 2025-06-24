@@ -14,7 +14,7 @@ int calculator(){
 
 
 
-void append_to_buffer(char c) {
+void apppend_to_buffer(char c) {
 
     if(c == 'q'){
         Keyboard::setCurrentMode(Mode::MODE_CLI);

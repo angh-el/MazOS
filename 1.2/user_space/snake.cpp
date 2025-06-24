@@ -129,7 +129,7 @@ void end_snake_game(){
     Keyboard::setCurrentMode(Mode::MODE_CLI);
     Display::set_colour(0x0, 0xf);
 }
-
+  
 // Update the direction based on keyboard input
 void update_direction(uint32_t key) {
     // printf("AYOOOO");
