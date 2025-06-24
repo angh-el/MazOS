@@ -75,6 +75,8 @@ public:
     void get_current_directory();
     void cd(const char *dirname);
     void cd_up();
+    int create_entry(const char* name, uint8_t attributes);
+    int overwrite_file(const uint8_t *data, uint32_t data_length, const char *filename);
 
 private:
     // varaibles
@@ -92,9 +94,7 @@ private:
     struct FAT32_DirectoryEntry* find_free_directory_entry(uint8_t* buffer);
     uint32_t find_free_cluster();
     void write_fat_entry(uint32_t cluster, uint32_t value);
-    int create_entry(const char* name, uint8_t attributes);
     int update_file_size(const char *filename, uint32_t new_size);
-    int overwrite_file(const uint8_t *data, uint32_t data_length, const char *filename);
     int append_to_file(uint32_t file_start_cluster, const uint8_t *data, uint32_t data_length, uint32_t file_size , const char *filename);
 };
 
