@@ -8,9 +8,12 @@
 #include "../drivers/input/mouse.hpp"
 #include "../drivers/display/display.hpp"
 
+class Paint{
+public:
+    static void paint();
+    static void exit_paint();
+    static void change_colour(char c);
 
-void paint();
-void exit_paint();
-void change_colour(char c);
+};
 
 #endif

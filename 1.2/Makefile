@@ -53,6 +53,8 @@ kernel:
 	g++ -m32 $(CXXFLAGS) -c user_space/snake.cpp -o snake.o
 #	paint
 	g++ -m32 $(CXXFLAGS) -c user_space/paint.cpp -o paint.o
+#	cli
+	g++ -m32 $(CXXFLAGS) -c user_space/cli.cpp -o cli.o
 
 boot:
 	nasm -f elf32 boot.s -o boot.o

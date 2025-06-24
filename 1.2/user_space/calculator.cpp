@@ -1,6 +1,9 @@
 #include "calculator.hpp"
 
-int calculator(){
+int input_index = 0;
+char c_input[100];
+
+int Calculator::calculator(){
 
     Keyboard::setCurrentMode(Mode::MODE_CALCULATOR);
 
@@ -14,7 +17,7 @@ int calculator(){
 
 
 
-void apppend_to_buffer(char c) {
+void Calculator::apppend_to_buffer(char c) {
 
     if(c == 'q'){
         Keyboard::setCurrentMode(Mode::MODE_CLI);
@@ -23,15 +26,15 @@ void apppend_to_buffer(char c) {
     }
 
     if(c == '\n'){
-        int result = evaluate_expression(input);
+        int result = evaluate_expression(c_input);
         printf(" = %d", result);
         printf("\n> ");
         return;
     }
 
-    if (input_index < sizeof(input) - 1) { 
-        input[input_index++] = c;
-        input[input_index] = '\0'; 
+    if (input_index < sizeof(c_input) - 1) { 
+        c_input[input_index++] = c;
+        c_input[input_index] = '\0'; 
         printf("%c ", c);
     } 
     else {
@@ -42,7 +45,7 @@ void apppend_to_buffer(char c) {
 
 
 
-int evaluate_expression(const char *expr) {
+int Calculator::evaluate_expression(const char *expr) {
     int result = 0;
     int current_number = 0;
     char current_operator = '+';
@@ -99,6 +102,6 @@ int evaluate_expression(const char *expr) {
     }
 
     input_index = 0;
-    input[0] = '\0';
+    c_input[0] = '\0';
     return result;
 }

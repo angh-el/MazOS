@@ -1,9 +1,9 @@
 #ifndef CLI_HPP
 #define CLI_HPP
 
-#include "snake.cpp"
-#include "calculator.cpp"
-#include "paint.cpp"
+#include "snake.hpp"
+#include "calculator.hpp"
+#include "paint.hpp"
 
 #include "../lib/stdint.hpp"
 #include "../lib/printf.hpp"
@@ -22,23 +22,18 @@
 #define UP_ARROW 0x48    // Scan code for up arrow
 #define DOWN_ARROW 0x50  // Scan code for down arrow
 
-// const uint32_t UNKNOWN = 0xFFFFFFFF;
-const uint32_t uppp = 0xFFFFFFFF - 20;
-const uint32_t downnn = 0xFFFFFFFF - 23;
-char command[COMMAND_BUFFER_SIZE];  
-int command_index = 0;  
-char command_history[HISTORY_SIZE][COMMAND_BUFFER_SIZE];
-int history_count = 0;  // Number of commands in history
-int history_index = -1; // Current position in history when navigating
 
+class CLI {
+public:
+    static void init(Fat32 f32);
+    static void add_to_history(const char* cmd);
+    static void help_function();
+    static int string_compare(const char *str1, const char *str2);
+    static void parse_command();
+    static void print_command();
+    static void handle_arrow_key(uint32_t scan_code);
+    static void append_to_command(char c);
 
-void init_cli(Fat32 f32);
-void add_to_history(const char* cmd);
-void help_function();
-int string_compare(const char *str1, const char *str2);
-void parse_command();
-void print_command();
-void handle_arrow_key(uint32_t scan_code);
-void append_to_command(char c);
+};
 
 #endif

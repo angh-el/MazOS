@@ -10,7 +10,10 @@
 #include "../../drivers/display/graphics.hpp"
 #include "../../managers/process_manager.hpp"
 
-
+#include "../../user_space/paint.hpp"
+#include "../../user_space/calculator.hpp"
+#include "../../user_space/snake.hpp"
+#include "../../user_space/cli.hpp"
 
 enum class Mode {
     MODE_DEFUALT,       // 0

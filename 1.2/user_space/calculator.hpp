@@ -1,17 +1,21 @@
-#ifndef CALCUlATOR_HPP
-#define CALCUlATOR_HPP
+#ifndef CALCULATOR_HPP
+#define CALCULATOR_HPP
 
 #include "../lib/stdint.hpp"
 #include "../lib/printf.hpp"
 
 #include "../drivers/input/keyboard.hpp"
 
-char input[100];
-int input_index = 0;
 
-int calculator();
-void apppend_to_buffer(char c);
-int evaluate_expression(const char *expr);
+
+class Calculator{
+public:
+
+    static int calculator();
+    static void apppend_to_buffer(char c);
+    static int evaluate_expression(const char *expr);
+
+};
 
 
 #endif

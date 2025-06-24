@@ -1,8 +1,17 @@
 #include "cli.hpp"
 
 Fat32 fat32;
+// const uint32_t UNKNOWN = 0xFFFFFFFF;
+const uint32_t uppp = 0xFFFFFFFF - 20;
+const uint32_t downnn = 0xFFFFFFFF - 23;
+char command[COMMAND_BUFFER_SIZE];  
+int command_index = 0;  
+char command_history[HISTORY_SIZE][COMMAND_BUFFER_SIZE];
+int history_count = 0;  // Number of commands in history
+int history_index = -1; // Current position in history when navigating
 
-void init_cli(Fat32 f32){
+
+void CLI::init(Fat32 f32){
     // setCurrentMode(MODE_CLI);
     fat32 = f32;
     Keyboard::setCurrentMode(Mode::MODE_CLI);
@@ -10,7 +19,7 @@ void init_cli(Fat32 f32){
 }
 
 
-void add_to_history(const char* cmd) {
+void CLI::add_to_history(const char* cmd) {
     // Only add non-empty commands
     if (cmd[0] == '\0') {
         return;
@@ -40,7 +49,7 @@ void add_to_history(const char* cmd) {
 
 
 
-void help_function(){
+void CLI::help_function(){
     printf("\n");
     printf("================================HELP MANUAL====================================\n");
     printf("   Command     |    Description     |      Argument/s       |       Notes      \n");
@@ -63,7 +72,7 @@ void help_function(){
 
 }
 
-int string_compare(const char *str1, const char *str2) {
+int CLI::string_compare(const char *str1, const char *str2) {
     
     int i = 0;
     
@@ -79,7 +88,7 @@ int string_compare(const char *str1, const char *str2) {
 }
 
 
-void parse_command() {
+void CLI::parse_command() {
     
     add_to_history(command);
     
@@ -138,15 +147,15 @@ void parse_command() {
         return;
     } 
     if(string_compare(funct, "paint")) {
-        paint();  
+        Paint::paint();  
         return;
     } 
     if(string_compare(funct, "calc")) {
-        calculator();
+        Calculator::calculator();
         return;
     }
     if(string_compare(funct, "snake")) {
-        start_snake_game();
+        Snake::start_snake_game();
         return;
     } 
 
@@ -278,7 +287,7 @@ void parse_command() {
 
 
 
-void print_command() {
+void CLI::print_command() {
     // printf("BIGUPPP");
     for (int i = 0; i < command_index; i++) {
         printf("%c", (command[i]));  
@@ -290,7 +299,7 @@ void print_command() {
 }
 
 
-void handle_arrow_key(uint32_t scan_code) {
+void CLI::handle_arrow_key(uint32_t scan_code) {
     if (scan_code == UP_ARROW || scan_code == uppp) {
         // printf("yoyoyyoyoyiyiyi ");
         // Navigate to previous command
@@ -378,7 +387,7 @@ void handle_arrow_key(uint32_t scan_code) {
 }
 
 
-void append_to_command(char c) {
+void CLI::append_to_command(char c) {
     // printf("%c",c);
     // printf("index: %d\n", command_index);
     

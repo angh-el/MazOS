@@ -1,20 +1,29 @@
 #include "snake.hpp"
 
-void srand_ticks() {
+Point snake[SNAKE_MAX_LENGTH];
+int snake_length = 24;
+Point apple;
+Direction current_direction = right;
+int game_over = 0;
+uint32_t lastKey;
+
+uint32_t seed = 2;
+
+void Snake::srand_ticks() {
     // seed = getTicks(); // Use the current tick value as the seed
     // printf("seed: %d\n", seed);
 }
 
-uint32_t rand() {
+uint32_t Snake::rand() {
     seed = (LCG_A * seed + LCG_C) % LCG_M;
     return seed;
 }
 
-uint32_t rand_range(uint32_t min, uint32_t max) {
+uint32_t Snake::rand_range(uint32_t min, uint32_t max) {
     return min + (rand() % (max - min + 1));
 }
 
-void init_snake_game() {
+void Snake::init_snake_game() {
     Display::clear_screen();
 
     int start_x = GAME_WIDTH / 2;
@@ -37,7 +46,7 @@ void init_snake_game() {
 }
 
 // Draw the snake and the apple
-void draw_game() {
+void Snake::draw_game() {
     Display::clear_screen();
 
     // Draw the snake
@@ -55,7 +64,7 @@ void draw_game() {
 }
 
 // Move the snake
-void move_snake() {
+void Snake::move_snake() {
     if (game_over) {
         Display::print_at("Game Over! Press 'q' to quit.", 0, GAME_HEIGHT - 1);
         return;
@@ -114,7 +123,7 @@ void move_snake() {
     }
 }
 
-void end_snake_game(){
+void Snake::end_snake_game(){
     printf("  Game Over ... \n");
     printf("  Final Score: %d\n", snake_length - 3);
 
@@ -131,7 +140,7 @@ void end_snake_game(){
 }
   
 // Update the direction based on keyboard input
-void update_direction(uint32_t key) {
+void Snake::update_direction(uint32_t key) {
     // printf("AYOOOO");
     lastKey = key;
     switch (key) {
@@ -162,7 +171,7 @@ void update_direction(uint32_t key) {
 
 
 // Start the snake game
-void start_snake_game() {
+void Snake::start_snake_game() {
     // init_keyboard();
     for (volatile int i = 0; i < 500000000; i++);
     // setCurrentMode(MODE_SNAKE);

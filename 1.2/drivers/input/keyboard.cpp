@@ -62,11 +62,11 @@ void Keyboard::handleKey(uint8_t keyCode, bool press){
     
     case 72:
         if(press == 0)
-        // append_to_command(UP);
+        CLI::append_to_command(UP);
         break;
     case 80:
         if(press == 0)
-        // append_to_command(DOWN);
+        CLI::append_to_command(DOWN);
         break;
     
     case 42:
@@ -85,19 +85,19 @@ void Keyboard::handleKey(uint8_t keyCode, bool press){
                     printf("%c",uppercase[keyCode]);
                 }
                 if(currentMode == Mode::MODE_CALCULATOR){
-                    // append_to_buffer(uppercase[keyCode]);
+                    Calculator::apppend_to_buffer(uppercase[keyCode]);
                 }
                 if(currentMode == Mode::MODE_SNAKE){
-                    // update_direction((char)uppercase[keyCode]);
+                    Snake::update_direction((char)uppercase[keyCode]);
                 }
                 if(currentMode == Mode::MODE_PAINT){
-                    // change_colour(uppercase[keyCode]);
+                    Paint::change_colour(uppercase[keyCode]);
                 }
                 if(currentMode == Mode::MODE_CLI){
                     // if(keyCode != 72 && keyCode != 80){
                     // if(keyCode != 72 && keyCode != 80 && keyCode!= 96){
                         printf("%c",uppercase[keyCode]);
-                        // append_to_command(uppercase[keyCode]);
+                        CLI::append_to_command(uppercase[keyCode]);
                     // }
                 }
                 if(currentMode == Mode::MODE_GRAPHICS){
@@ -114,16 +114,16 @@ void Keyboard::handleKey(uint8_t keyCode, bool press){
                         break;
 
                     case Mode::MODE_CALCULATOR:
-                        // append_to_buffer(lowercase[keyCode]);
+                        Calculator::apppend_to_buffer(lowercase[keyCode]);
                         break;
 
                     case Mode::MODE_SNAKE:
-                        // update_direction(lowercase[keyCode]);
+                        Snake::update_direction(lowercase[keyCode]);
                         // printf("SNAKE %c"s, lowercase[keyCode]);
                         break;
 
                     case Mode::MODE_PAINT:
-                        // change_colour(lowercase[keyCode]);
+                        Paint::change_colour(lowercase[keyCode]);
                         // printf("PAINT %c", lowercase[keyCode]);
                         break;
 
@@ -131,7 +131,7 @@ void Keyboard::handleKey(uint8_t keyCode, bool press){
                     //    if(keyCode != 72 && keyCode != 80 && keyCode!= 96){
                             printf("%c", lowercase[keyCode]);
                             // printf("%d", keyCode);
-                            // append_to_command(lowercase[keyCode]);
+                            CLI::append_to_command(lowercase[keyCode]);
                         // }
                         break;
                     case Mode::MODE_GRAPHICS:

@@ -1,7 +1,7 @@
 #include "paint.hpp"
 
 
-void paint(){
+void Paint::paint(){
     // clear screen
     Display::set_colour(0xf, 0xf);
     Display::clear_screen();
@@ -47,7 +47,7 @@ void paint(){
 }
 
 
-void exit_paint(){
+void Paint::exit_paint(){
     Display::set_colour(0x0, 0xf);
     Display::clear_screen();
     Keyboard::setCurrentMode(Mode::MODE_CLI);
@@ -57,7 +57,7 @@ void exit_paint(){
 //     paint_colour = pcol;
 // }
 
-void change_colour(char c){
+void Paint::change_colour(char c){
     switch(c){
         case 'q':
             exit_paint();

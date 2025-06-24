@@ -26,7 +26,8 @@
 // syscall
 #include "syscall/syscall.hpp"              // syscall handler
 
-
+// command line interface
+#include "user_space/cli.hpp"               // command line interface
 
 
 int main(uint32_t magic, struct multiboot_info* bootInfo){
@@ -88,6 +89,8 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
     // TODO CLI
+    CLI::init(fat32);
+
 
     for(;;)
 
