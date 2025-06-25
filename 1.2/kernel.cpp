@@ -29,6 +29,9 @@
 // command line interface
 #include "user_space/cli.hpp"               // command line interface
 
+// networking
+#include "networking/pci.hpp"               // pci
+#include "networking/rtl8139.hpp"           // rtl8139 driver
 
 int main(uint32_t magic, struct multiboot_info* bootInfo){
 
@@ -89,8 +92,24 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
     // TODO CLI
-    CLI::init(fat32);
+    // CLI::init(fat32);
 
+
+    // networking
+    // printf("%d", rtl8139_init());
+    // if (rtl8139_init()) {
+    //     printf("RTL8139 initialized successfully!\n");
+    //     print_mac();
+    //     // uint8_t mac[6];
+    //     // rtl8139_get_mac(mac);
+    //     // printf("MAC Address: %02X:%02X:%02X:%02X:%02X:%02X\n",
+    //     //        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    // } 
+    // else {
+    //     printf("RTL8139 initialization failed.\n");
+    // }
+
+    initialize_rtl8139_with_explicit_params();
 
     for(;;)
 

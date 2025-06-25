@@ -56,6 +56,10 @@ kernel:
 #	cli
 	g++ -m32 $(CXXFLAGS) -c user_space/cli.cpp -o cli.o
 
+##	netwroking
+	g++ -m32 $(CXXFLAGS) -c networking/pci.cpp -o pci.o
+	g++ -m32 $(CXXFLAGS) -c networking/rtl8139.cpp -o rtl8139.o
+
 boot:
 	nasm -f elf32 boot.s -o boot.o
 	nasm -f elf32 descriptors/gdt_flush.s -o gdt_flush.o
@@ -79,5 +83,5 @@ image:
 	rm *.o
 
 run: MazOS.iso
-	qemu-system-i386 MazOS.iso
-	
+#	qemu-system-i386 MazOS.iso
+	qemu-system-i386 -netdev user,id=n0 -device rtl8139,netdev=n0 -hda MazOS.iso
