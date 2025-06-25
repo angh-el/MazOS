@@ -8,6 +8,29 @@ void memset(void *dest, char val, uint32_t count){
     }
 };
 
+// void memcpy(void *dest, const uint8_t * val, uint32_t count){
+//     char *temp = (char*) dest;
+//     for (; count != 0; count --){
+//         *temp++ = *val;
+//     }
+// }
+
+
+void* memcpy(uint8_t* dest, uint8_t* src, int len) {
+    for (int i = 0; i < len; ++i) {
+        dest[i] = static_cast<uint8_t>(src[i]);
+    }
+    return dest;
+}
+
+int strlen(const char* string) {
+    int length = 0;
+    while (string[length] != '\0') {
+        ++length;
+    }
+    return length;
+}
+
 // Simple memory copy function
 void simple_memcpy(void* dest, const void* src,  unsigned int n) {
     uint8_t* d = (uint8_t*) dest;

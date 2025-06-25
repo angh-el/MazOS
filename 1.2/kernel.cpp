@@ -29,7 +29,7 @@
 // command line interface
 #include "user_space/cli.hpp"               // command line interface
 
-// networking
+// // networking
 #include "networking/pci.hpp"               // pci
 #include "networking/rtl8139.hpp"           // rtl8139 driver
 
@@ -88,7 +88,7 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
     // TODO: Syscalls
-    Syscall::init();
+    Syscall::init();    
 
 
     // TODO CLI
@@ -109,8 +109,10 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
     //     printf("RTL8139 initialization failed.\n");
     // }
 
+    // initialize_rtl8139_with_explicit_params();
     initialize_rtl8139_with_explicit_params();
-
+    dns_lookup("google.com");
+    
     for(;;)
 
     return 0;
