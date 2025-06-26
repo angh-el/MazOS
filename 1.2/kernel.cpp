@@ -29,9 +29,7 @@
 // command line interface
 #include "user_space/cli.hpp"               // command line interface
 
-// // networking
-#include "networking/pci.hpp"               // pci
-#include "networking/rtl8139.hpp"           // rtl8139 driver
+void print_logo();
 
 int main(uint32_t magic, struct multiboot_info* bootInfo){
 
@@ -94,24 +92,7 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
     // TODO CLI
     // CLI::init(fat32);
 
-
-    // networking
-    // printf("%d", rtl8139_init());
-    // if (rtl8139_init()) {
-    //     printf("RTL8139 initialized successfully!\n");
-    //     print_mac();
-    //     // uint8_t mac[6];
-    //     // rtl8139_get_mac(mac);
-    //     // printf("MAC Address: %02X:%02X:%02X:%02X:%02X:%02X\n",
-    //     //        mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    // } 
-    // else {
-    //     printf("RTL8139 initialization failed.\n");
-    // }
-
-    // initialize_rtl8139_with_explicit_params();
-    initialize_rtl8139_with_explicit_params();
-    dns_lookup("google.com");
+    print_logo();
     
     for(;;)
 
@@ -120,5 +101,50 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
 
+void print_logo(){
 
+    Display::clear_screen();
+    int rows = 7, cols = 52;
+    char logo[rows][cols] = {
+        {' ',' ','#','#',' ',' ',' ',' ',' ','#','#',' ',' ',' ',' ','#','#','#',' ',' ',' ',' ','#','#','#','#','#','#','#','#',' ',' ',' ',' ',' ','#','#','#','#','#','#','#',' ',' ',' ','#','#','#','#','#','#',' '},
+        {' ',' ','#','#','#',' ',' ',' ','#','#','#',' ',' ',' ','#','#',' ','#','#',' ',' ',' ',' ',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ','#','#',' ','#','#',' ',' ',' ',' ','#','#'},
+        {' ',' ','#','#','#','#',' ','#','#','#','#',' ',' ','#','#',' ',' ',' ','#','#',' ',' ',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ','#','#',' ','#','#',' ',' ',' ',' ',' ',' '},
+        {' ',' ','#','#',' ','#','#','#',' ','#','#',' ','#','#',' ',' ',' ',' ',' ','#','#',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ','#','#',' ',' ','#','#','#','#','#','#',' '},
+        {' ',' ','#','#',' ',' ',' ',' ',' ','#','#',' ','#','#','#','#','#','#','#','#','#',' ',' ',' ','#','#',' ',' ',' ',' ',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ',' ',' ','#','#'},
+        {' ',' ','#','#',' ',' ',' ',' ',' ','#','#',' ','#','#',' ',' ',' ',' ',' ','#','#',' ',' ','#','#',' ',' ',' ',' ',' ',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ','#','#',' ','#','#',' ',' ',' ',' ','#','#'},
+        {' ',' ','#','#',' ',' ',' ',' ',' ','#','#',' ','#','#',' ',' ',' ',' ',' ','#','#',' ','#','#','#','#','#','#','#','#',' ',' ',' ',' ',' ','#','#','#','#','#','#','#',' ',' ',' ','#','#','#','#','#','#',' '},
+    };
+
+    
+    int wave = 0;
+    int base_row = 3;
+    while(true){
+
+        for(int i = 0; i < rows; ++i){
+            for(int j = 0; j < cols; ++j){
+                if(j >= wave && j < wave + 1){ 
+                    Display::set_cursor(Display::get_screen_offset(j, base_row + i - 1));
+                } 
+                else{ 
+                    Display::set_cursor(Display::get_screen_offset(j, base_row + i));
+                }
+                if(j < wave){
+                    printf("%c", logo[i][j]);
+                }
+            }
+        }
+        
+        wave++;
+        if(wave >= cols  + 10) {
+            wave = 0; 
+            for(volatile uint64_t k = 0; k < 50000000; k++){
+                // printf("%d ", k);
+            };
+            Display::clear_screen();
+        }
+        for(volatile uint64_t k = 0; k < 8000000; k++){
+            // printf("%d ", k);
+        };
+    }
+}
 
