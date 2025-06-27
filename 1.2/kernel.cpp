@@ -101,6 +101,8 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
 
+
+
 void print_logo(){
 
     Display::clear_screen();
