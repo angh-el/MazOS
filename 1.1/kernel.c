@@ -92,7 +92,7 @@ void kmain(uint32_t magic, struct multiboot_info* bootInfo){
     // init_mouse();
 
     // paint();
-    // start_snake_game();
+    start_snake_game();
 
     init_cli();
     // clear_screen();

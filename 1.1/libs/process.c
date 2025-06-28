@@ -448,7 +448,7 @@ void process_1() {
     ///////////////////////////////////////////
     static int offset = 0;  // Start printing from the right side
     static int scroll_started = 0;  // Flag to check if scrolling has started
-    const char* text = "This demonstrates how the OS handles multiple processes running at the same time... talk about a bit about something";
+    const char* text = "Hello Concurrent Processes                                              ";
     int text_length = strlen(text);
     
     if((offset < MAX_COLS / 2)){set_cursor(get_screen_offset(MAX_COLS-offset, MAX_ROWS*0.75));}

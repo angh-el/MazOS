@@ -90,9 +90,9 @@ int main(uint32_t magic, struct multiboot_info* bootInfo){
 
 
     // TODO CLI
-    // CLI::init(fat32);
+    CLI::init(fat32);
 
-    print_logo();
+    // print_logo();
     
     for(;;)
 

@@ -889,9 +889,9 @@ int Fat32::create_entry(const char* name, uint8_t attributes) {
                 dotdot->first_cluster_low = current_directory_cluster & 0xFFFF;
                 dotdot->first_cluster_high = (current_directory_cluster >> 16) & 0xFFFF;
                 
-                printf("cluster: %d, cluster_to_sector: %d\n", cluster, cluster_to_sector(cluster)+ fat32_start_sector);
+                // printf("cluster: %d, cluster_to_sector: %d\n", cluster, cluster_to_sector(cluster)+ fat32_start_sector);
                 Disk::write_sector(cluster_to_sector(cluster) + fat32_start_sector, dir_buffer);
-                printf("SHUSHHH");
+                // printf("SHUSHHH");
             }
             // printf("yoo"); 
             Disk::write_sector(sector_number, buffer);
