@@ -4,9 +4,11 @@ MazOS is a 32-bit Operating System for x86 processors, designed and built with t
   ![Logo](https://github.com/user-attachments/assets/a2c655e3-6a20-488e-a717-b75d240231b2)
 
 ## Information
-[Problem Statement](./docs/ProblemStatement) Defines the problem and sets the constraints
-[Technical Document](./docs/TechnicalDocument) Explores Design and Architectural choices made
-[Value Proposition](./docs/ValueProposition) States the importance of MazOS and problems it tries to solve
+[Problem Statement](./docs/ProblemStatement.pdf) Defines the problem and sets the constraints
+
+[Technical Document](./docs/TechnicalDocument.pdf) Explores Design and Architectural choices made
+
+[Value Proposition](./docs/ValueProposition.pdf) States the importance of MazOS and problems it tries to solve
 
 ## Key Features
 - Process Manager and support for concurrent processes
