@@ -4,17 +4,20 @@ MazOS is a 32-bit Operating System for x86 processors, designed and built with t
   ![Logo](https://github.com/user-attachments/assets/a2c655e3-6a20-488e-a717-b75d240231b2)
 
 ## Information
-[Problem Statement](./docs/ProblemStatement.pdf) Defines the problem and sets the constraints
+Below are attached some additional documents that further explain, explore and analyse the problem at hand
 
-[Technical Document](./docs/TechnicalDocument.pdf) Explores Design and Architectural choices made
+📘 [Problem Statement](./docs/ProblemStatement.pdf) Defines the problem and sets the constraints
 
-[Value Proposition](./docs/ValueProposition.pdf) States the importance of MazOS and problems it tries to solve
+🛠️ [Technical Document](./docs/TechnicalDocument.pdf) Explores Design and Architectural choices made
+
+💼 [Value Proposition](./docs/ValueProposition.pdf) States the importance of MazOS and problems it tries to solve
 
 ## Key Features
 - Process Manager and support for concurrent processes
 - Memory Manager using first-fit allocation
 - PS/2 Keyboard and Mouse driver
 - ATA Disk driver and FAT32 filesystem support
+- File operations (read, create, write, delete)
 - VGA (Graphics Mode) and support for .PNG images
 - Sound Blaster 16 Driver
 - Intuitive Command Line Interface
@@ -38,15 +41,15 @@ MazOS is a 32-bit Operating System for x86 processors, designed and built with t
   ![cli_help](https://github.com/user-attachments/assets/bce2c99f-1feb-4f94-8074-95befcaa711d)
 ---
 
-**'ls', 'mkdir' and 'cd' commands**
+**``ls``, ``mkdir`` and ``cd`` commands**
   ![ls+mkdir+cd](https://github.com/user-attachments/assets/645f989a-b961-4b90-a000-6768dd7d1507)
 ---
 
-**'touch' and 'cat' and file write commands**
+**``touch`` and ``cat`` and file write commands**
   ![touch+cat+echo](https://github.com/user-attachments/assets/cbd15209-705c-4f16-8c24-e22498bc663e)
 ---
 
-**'rmdir' and 'rm' commands**
+**``rmdir`` and ``rm`` commands**
   ![rmdir+rm](https://github.com/user-attachments/assets/dcd497ed-5842-4f64-9239-791f299efa85)
 ---
 
@@ -67,8 +70,30 @@ MazOS is a 32-bit Operating System for x86 processors, designed and built with t
   ![snake](https://github.com/user-attachments/assets/7f4810d8-34d7-4ff6-bb3e-e8d40995e81b)
 ---
 
+## Usage
+Here's how to build and run MazOS 👇
 
+### **Prerequisistes**
+> ``g++`` for compiling c++ files
 
+>  ``nasm`` for compiling assembly files into binary
+
+> ``qemu`` used as virtualisation software
+
+### Step 1: Clone the repository
+```sh
+git clone https://github.com/angh-el/MazO
+```
+
+### Step 2: Build the os
+```sh
+make
+```
+
+### Step 2: Run the OS using QEMUS
+```sh
+make run
+```
 
 
 
