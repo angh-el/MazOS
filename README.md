@@ -13,15 +13,14 @@ Below are attached some additional documents that further explain, explore and a
 💼 [Value Proposition](./docs/ValueProposition.pdf) States the importance of MazOS and problems it tries to solve
 
 ## Key Features
-- Process Manager and support for concurrent processes
-- Memory Manager using first-fit allocation
-- PS/2 Keyboard and Mouse driver
-- ATA Disk driver and FAT32 filesystem support
-- File operations (read, create, write, delete)
-- VGA (Graphics Mode) and support for .PNG images
-- Sound Blaster 16 Driver
-- Intuitive Command Line Interface
-- POSIX compliant system calls
+- custom kernel (although, GRUB is used as the bootloader)
+- efficient memory manager using first-fit allocation
+- custom process manager that supports concurrent processes and adaptive scheduling that dynamically switches algorithms based on workload characteristics
+- a range of drivers including: PS/2 Mouse and Keyboard driver, ATA Disk driver, Sound Blaster 16 audio driver, VGA driver (and support for opening and rendering .png files)
+- a fully functioning FAT32 filesytem and ability to perform file operations (open, read, write, close, create, delete, copy and paste)
+- some basic POSIX compliant system calls (write, read, sbrk, exit, execve, fork, open and kill)
+- intuitive command line interface and Unix-like commands (cd, ls, pwd, cat, rm, mk and touch) plus other custom commands for better usability 
+- simple user-space application showcasing the range of features of MazOS: calculator tool, paint app, and snake game
 
 
 ## Project Highlights
